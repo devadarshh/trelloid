@@ -15,12 +15,26 @@ datasource db {
 
 
 model User {
-  id String @id @default(cuid())
-  clerkId String @unique
-  email String @unique
-  firstName String
-  lastName  String
-  imageUrl String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String        @id @default(cuid())
+  clerkId        String        @unique
+  email          String        @unique
+  firstName      String?
+  lastName       String?
+  imageUrl       String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+}
+
+model Organization {
+  id              String   @id @default(cuid()) 
+  organizationId  String   @unique           
+  name            String
+  organizationImage String  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  users           User[] // Relation back to users
 }

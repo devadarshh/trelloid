@@ -2,17 +2,19 @@ import { verifyWebhook } from "@clerk/express/webhooks";
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
 
-export const handleRegisterUser = async (
+export const syncUserInDB = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
   try {
-    const evt = await verifyWebhook(req);
+    const evt = await verifyWebhook(req, {
+      signingSecret: process.env.CLERK_WEBHOOK_SECRET_USER,
+    });
+
 
     const { id } = evt.data;
     const eventType = evt.type;
 
-    console.log("Webhook payload:", evt.data);
     if (evt.type === "user.created") {
       const data = evt.data as any;
 

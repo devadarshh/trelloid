@@ -1,11 +1,13 @@
 import express from "express";
-import { handleRegisterUser } from "../controllers/webhook.controller";
+import { syncUserInDB } from "../controllers/auth.controller";
 const router = express.Router();
 
 router.post(
   "/register",
   express.raw({ type: "application/json" }),
-  handleRegisterUser
+  syncUserInDB
 );
 
 export default router;
+
+
