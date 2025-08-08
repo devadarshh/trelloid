@@ -6,8 +6,8 @@ const SelectOrgPage = () => {
       SelectOrgPage
       <OrganizationList
         hidePersonal
-        afterCreateOrganizationUrl={"/boards"}
-        afterSelectOrganizationUrl={"/boards"}
+        afterCreateOrganizationUrl={"/organization/:id"}
+        afterSelectOrganizationUrl={"/organization/:id"}
       />
     </div>
   );
