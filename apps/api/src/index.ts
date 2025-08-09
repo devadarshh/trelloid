@@ -4,18 +4,27 @@ import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
 import authWebHook from "./routers/auth.route";
 import orgWebHook from "./routers/org.route";
+import unsplashRoutes from "./routers/unsplash.route";
+import boardRoutes from "./routers/board.route";
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+app.use(express.json());
 
 app.use(clerkMiddleware());
 app.use("/", authWebHook);
 app.use("/", orgWebHook);
 
-app.use(express.json());
+app.use("/api/v1", boardRoutes);
+app.use("/api", unsplashRoutes);
 
 const PORT = process.env.PORT || 6000;
 
@@ -24,5 +33,5 @@ app.get("/health", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`server is running on port ${PORT}`);
+  console.log(`SERVER IS RUNNING ON PORT ${PORT}`);
 });

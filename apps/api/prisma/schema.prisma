@@ -36,5 +36,24 @@ model Organization {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  users           User[] // Relation back to users
+  users           User[]
+  boards  Board[]
+}
+
+model Board {
+
+
+  id String @id @default(uuid())
+  organizationId String
+
+  title String
+  imageId String
+  imageThumbUrl String @db.Text
+  imageFullUrl String @db.Text
+  imageLinkHTML String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  organization  Organization @relation(fields: [organizationId], references: [id])
 }

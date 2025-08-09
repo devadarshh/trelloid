@@ -1,7 +1,6 @@
 import { verifyWebhook } from "@clerk/express/webhooks";
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
-import { success } from "zod";
 
 export const syncOrganizationInDb = async (req: Request, res: Response) => {
   try {
