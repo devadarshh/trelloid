@@ -93,3 +93,13 @@ export const useGetBoardStore = create<BoardStore>()(
     }
   )
 );
+
+interface BoardId {
+  BoardId: string;
+  setBoardId: (newBoardId: string) => void;
+}
+
+export const useBoardIdStore = create<BoardId>((set) => ({
+  BoardId: "",
+  setBoardId: (newBoardId) => set({ BoardId: newBoardId }),
+}));

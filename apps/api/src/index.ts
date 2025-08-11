@@ -6,6 +6,8 @@ import authWebHook from "./routers/auth.route";
 import orgWebHook from "./routers/org.route";
 import unsplashRoutes from "./routers/unsplash.route";
 import boardRoutes from "./routers/board.route";
+import listRoutes from "./routers/list.route";
+import cardRoutes from "./routers/card.route";
 
 dotenv.config();
 
@@ -24,6 +26,8 @@ app.use("/", authWebHook);
 app.use("/", orgWebHook);
 
 app.use("/api/v1", boardRoutes);
+app.use("/api/v1", listRoutes);
+app.use("/api/v1", cardRoutes);
 app.use("/api", unsplashRoutes);
 
 const PORT = process.env.PORT || 6000;

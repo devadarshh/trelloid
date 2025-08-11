@@ -15,11 +15,11 @@ export const Logo = () => {
         <Image src="/logo.svg" alt="Logo" height={30} width={30} />
         <p
           className={cn(
-            "text-lg text-neutral-700 -ml-2 pb-2 decoration-2",
+            "text-lg text-neutral-700 -ml-2 pb-2 underline decoration-orange-400 decoration-2",
             headingFont.className
           )}
         >
-          Trelloid
+          Taskify
         </p>
       </div>
     </Link>

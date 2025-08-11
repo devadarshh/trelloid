@@ -3,6 +3,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ✅ Ensure full height layout */
+html,
+body,
+:root {
+  height: 100%;
+}
+
 html,
 body {
   max-width: 100vw;

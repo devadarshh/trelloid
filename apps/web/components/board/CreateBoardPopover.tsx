@@ -61,6 +61,7 @@ const CreateBoardPopover = () => {
 
   const handleCreateBoard = async () => {
     try {
+      setLoading(true);
       const token = await getToken();
       const response = await axios.post(
         "http://localhost:5000/api/v1/create-board",

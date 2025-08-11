@@ -68,3 +68,47 @@ export const handleCreateBoard = async (
     });
   }
 };
+
+export const handleGetAllBoard = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const orgId = req.query.orgId as string;
+    console.log("Organization ID:", orgId);
+    if (!orgId) {
+      return res.status(400).json({
+        success: false,
+        message: "Organization ID is required",
+      });
+    }
+
+    const orgExists = await prisma.organization.findUnique({
+      where: {
+        organizationId: orgId,
+      },
+    });
+    if (!orgExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Organization not found",
+      });
+    }
+    const boards = await prisma.board.findMany({
+      where: {
+        organizationId: orgId as string,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: boards,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};
