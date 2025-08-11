@@ -1,49 +1,32 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import BoardList from "components/board/BoardList";
 import CreateBoard from "components/board/CreateBoard";
-import NavBar from "components/organization/NavBar";
+import NavBar from "components/organization/OrgNavBar";
 import Link from "next/link";
+import { Separator } from "@/components/ui/separator";
 
-import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
-import React from "react";
+import React, { Suspense } from "react";
+import OrgNavBar from "components/organization/OrgNavBar";
 
 interface OrganizationIdProps {
-  params: Promise<{ organizationId: string }>;
+  params: { organizationId: string };
 }
-const OrganizationIdPage = async ({ params }: OrganizationIdProps) => {
-  const { organizationId } = await params;
+const OrganizationIdPage = ({ params }: OrganizationIdProps) => {
+  const { organizationId } = params;
 
   return (
-    <div>
-      <NavBar />
-      <p>{organizationId}</p>
-      <BoardList />
-      <CreateBoard organizationId={organizationId} />
-      <div className="flex items-center flex-col">
-        <BoardList />
-
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-
-        <Button variant={"default"}>
-          <Link href={"/board"}>Boards</Link>
-        </Button>
-        <Button variant={"default"}>
-          <Link href={"/activity"}>Activity</Link>
-        </Button>
-        <Button variant={"default"}>
-          <Link href={"/setting"}>Settings</Link>
-        </Button>
-        <Button variant={"default"}>
-          <Link href={"/billing"}>Billings</Link>
-        </Button>
+    <div className="w-full mb-20">
+      <OrgNavBar />
+      <Separator className="my-4" />
+      <div>
+        <Suspense>
+          <BoardList />
+        </Suspense>
       </div>
+
+      <CreateBoard organizationId={organizationId} />
     </div>
   );
 };

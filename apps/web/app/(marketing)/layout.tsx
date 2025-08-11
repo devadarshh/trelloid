@@ -4,9 +4,9 @@ import NavBar from "../../components/marketing/NavBar";
 
 const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div>
+    <div className="h-full bg-slate-100">
       <NavBar />
-      {children}
+      <main className="pt-40 pb-20 bg-slate-100">{children}</main>
       <Footer />
     </div>
   );

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface LoadingStore {
   isLoading: boolean;
@@ -32,7 +33,7 @@ export const useImageStore = create<ImageStore>((set) => ({
   setImages: (imgs) => set({ images: imgs }),
 }));
 
-interface BoardStore {
+interface CreateBoardStore {
   title: string;
   imageId: string;
   imageThumbUrl: string;
@@ -46,7 +47,7 @@ interface BoardStore {
   setImageLinkHTML: (link: string) => void;
 }
 
-export const useBoardStore = create<BoardStore>((set) => ({
+export const useCreateBoardStore = create<CreateBoardStore>((set) => ({
   title: "",
   imageId: "",
   imageThumbUrl: "",
@@ -59,3 +60,36 @@ export const useBoardStore = create<BoardStore>((set) => ({
   setImageFullUrl: (url) => set({ imageFullUrl: url }),
   setImageLinkHTML: (link) => set({ imageLinkHTML: link }),
 }));
+
+type Board = {
+  id: string;
+  title: string;
+  imageThumbUrl: string;
+  imageFullUrl: string;
+};
+
+interface BoardStore {
+  boards: Board[];
+  setBoards: (boards: Board[]) => void;
+  currentBoard: Board | null;
+  setCurrentBoard: (board: Board) => void;
+}
+
+// using persist because if i directly go to the board ig page and refrehs then image is not storing
+export const useGetBoardStore = create<BoardStore>()(
+  persist(
+    (set) => ({
+      boards: [],
+      setBoards: (boards) => set({ boards }),
+      currentBoard: null,
+      setCurrentBoard: (board) => set({ currentBoard: board }),
+    }),
+    {
+      name: "board-storage",
+      partialize: (state) => ({
+        boards: state.boards,
+        currentBoard: state.currentBoard,
+      }),
+    }
+  )
+);

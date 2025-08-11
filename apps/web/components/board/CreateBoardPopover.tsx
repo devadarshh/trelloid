@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useEffect } from "react";
 import axios from "axios";
 import {
-  useBoardStore,
+  useCreateBoardStore,
   useImageStore,
   useLoadingStore,
 } from "hooks/boardHooks/useStore";
@@ -32,7 +32,7 @@ const CreateBoardPopover = () => {
     setImageThumbUrl,
     setImageFullUrl,
     setImageLinkHTML,
-  } = useBoardStore();
+  } = useCreateBoardStore();
 
   useEffect(() => {
     const fetchImages = async () => {
