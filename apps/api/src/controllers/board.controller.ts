@@ -112,3 +112,47 @@ export const handleGetAllBoard = async (
     });
   }
 };
+
+export const handleDeleteBoard = async (req: Request, res: Response) => {
+  try {
+    const { boardId } = req.body;
+
+    console.log(boardId);
+
+    if (!boardId) {
+      return res.status(400).json({
+        success: false,
+        message: "Board ID is required",
+      });
+    }
+
+    const boardExists = await prisma.board.findUnique({
+      where: {
+        id: boardId,
+      },
+    });
+
+    if (!boardExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Board  not found",
+      });
+    }
+
+    const deleteBoard = await prisma.board.delete({
+      where: { id: boardId },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Board is Deleted",
+      data: deleteBoard,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};

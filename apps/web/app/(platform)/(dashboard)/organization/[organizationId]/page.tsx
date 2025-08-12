@@ -1,14 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import BoardList from "components/board/BoardList";
 import CreateBoard from "components/board/CreateBoard";
-import NavBar from "components/organization/OrgNavBar";
-import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 
 import React, { Suspense } from "react";
-import OrgNavBar from "components/organization/OrgNavBar";
+import { Info } from "./_components/Info";
 
 interface OrganizationIdProps {
   params: { organizationId: string };
@@ -18,10 +15,10 @@ const OrganizationIdPage = ({ params }: OrganizationIdProps) => {
 
   return (
     <div className="w-full mb-20">
-      <OrgNavBar />
+      {/* <Info isPro={} /> */}
       <Separator className="my-4" />
-      <div>
-        <Suspense>
+      <div className="px-2 md:px-4">
+        <Suspense fallback={<BoardList.Skeleton />}>
           <BoardList />
         </Suspense>
       </div>

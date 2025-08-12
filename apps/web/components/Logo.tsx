@@ -19,7 +19,7 @@ export const Logo = () => {
             headingFont.className
           )}
         >
-          Taskify
+          Trelloid
         </p>
       </div>
     </Link>

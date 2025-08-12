@@ -25,7 +25,7 @@ export default function BoardIdPage({ params }: BoardIdProps) {
   useEffect(() => {
     setBoardId(boardId);
   }, []);
-
+  console.log(BoardId);
   useEffect(() => {
     const fetchAllLists = async () => {
       if (!boardId) return;
