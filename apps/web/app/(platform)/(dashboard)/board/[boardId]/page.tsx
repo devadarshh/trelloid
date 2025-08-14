@@ -9,6 +9,8 @@ import { useBoardIdStore, useLoadingStore } from "hooks/boardHooks/useStore";
 import { useCreateListStore } from "hooks/listHooks/useStore";
 import { useRefreshList } from "hooks/listHooks/useStore";
 import { useEffect, useState } from "react";
+import ListContainer from "./_components/ListContainer";
+import { useRefreshCards } from "hooks/cardHooks/useStore";
 
 interface BoardIdProps {
   params: { boardId: string };
@@ -21,11 +23,11 @@ export default function BoardIdPage({ params }: BoardIdProps) {
   const { setLoading } = useLoadingStore();
   const { refreshLists } = useRefreshList();
   const { lists, setLists } = useCreateListStore();
+  const { refreshCards } = useRefreshCards();
 
   useEffect(() => {
     setBoardId(boardId);
   }, []);
-  console.log(BoardId);
   useEffect(() => {
     const fetchAllLists = async () => {
       if (!boardId) return;
@@ -39,7 +41,7 @@ export default function BoardIdPage({ params }: BoardIdProps) {
           params: { boardId },
           withCredentials: true,
         });
-        console.log(response.data.data);
+        console.log("data of all the cards", response.data.data);
         setLists(response.data.data);
       } catch (error: any) {
         console.error(error.message || "Error Fetching All Lists");
@@ -48,12 +50,13 @@ export default function BoardIdPage({ params }: BoardIdProps) {
       }
     };
     fetchAllLists();
-  }, [boardId, refreshLists]);
+  }, [boardId, refreshLists, refreshCards]);
+
 
   return (
-    <div className="flex items-start gap-4 px-6 overflow-x-auto h-full">
-      <RenderAllLists />
-      <AddListButton />
+    <div className="flex items-start gap-4 px-6 overflow-x-auto h-full mt-6">
+      <ListContainer data={lists} />
+      {/* <RenderAllLists /> */}
     </div>
   );
 }

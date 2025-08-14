@@ -37,9 +37,10 @@ export function AddListButton() {
 
   const handleCreateList = async () => {
     try {
+      setLoading(true);
       const token = await getToken();
       const response = await axios.post(
-        "http://localhost:5000/api/v1/create-list",
+        "http://localhost:5000/api/v1/update-board",
         {
           boardId: BoardId,
           title,
@@ -51,7 +52,7 @@ export function AddListButton() {
           withCredentials: true,
         }
       );
-      console.log("List Created", response.data);
+      console.log("Board Renamed", response.data);
       triggerRefreshLists(true);
     } catch (error: any) {
       console.log("3");

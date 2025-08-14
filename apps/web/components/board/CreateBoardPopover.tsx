@@ -133,6 +133,3 @@ const CreateBoardPopover = () => {
 };
 
 export default CreateBoardPopover;
-function getToken() {
-  throw new Error("Function not implemented.");
-}

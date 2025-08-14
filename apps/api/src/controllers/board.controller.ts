@@ -156,3 +156,58 @@ export const handleDeleteBoard = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const handleUpdateBoard = async (req: Request, res: Response) => {
+  try {
+    // take the updated value that you want
+    const { boardId, title } = req.body;
+
+    console.log(boardId);
+    console.log(title);
+
+    if (!boardId) {
+      return res.status(400).json({
+        success: false,
+        message: "Board ID is required",
+      });
+    }
+
+    const boardExists = await prisma.board.findUnique({
+      where: {
+        id: boardId,
+      },
+    });
+
+    if (!boardExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Board  not found",
+      });
+    }
+
+    if (boardExists.title === title) {
+      return res.status(200).json({
+        success: true,
+        message: "No changes made",
+        data: boardExists,
+      });
+    }
+    const updateBoard = await prisma.board.update({
+      where: { id: boardId },
+      data: {
+        title: title.trim(),
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Board  is Updated",
+      data: updateBoard,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};

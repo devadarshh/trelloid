@@ -9,7 +9,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@clerk/nextjs";
 import axios from "axios";
 import { Hint } from "components/Hint";
-import { useGetBoardStore, useLoadingStore } from "hooks/boardHooks/useStore";
+import {
+  useGetBoardStore,
+  useLoadingStore,
+  useRefreshBoard,
+} from "hooks/boardHooks/useStore";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
 import { HelpCircle, User2 } from "lucide-react";
 import Link from "next/link";
@@ -24,9 +28,9 @@ const BoardList = () => {
   const { isLoading, setLoading } = useLoadingStore();
   const { getToken } = useAuth();
   const { orgId } = useOrganizationIdStore();
+  const { refreshBoards } = useRefreshBoard();
   const { boards, setBoards, setCurrentBoard } = useGetBoardStore();
   useEffect(() => {
-    console.log("BoardList mounted. orgId:", orgId);
     if (!orgId) {
       console.warn("No orgId available yet. Waiting...");
       return;
@@ -55,7 +59,7 @@ const BoardList = () => {
       }
     };
     fetchAllBoards();
-  }, [orgId]);
+  }, [orgId, refreshBoards]);
 
   return (
     <div className="space-y-4">

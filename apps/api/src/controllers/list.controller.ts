@@ -84,6 +84,13 @@ export const getAllLists = async (
       orderBy: {
         order: "asc",
       },
+      include: {
+        cards: {
+          orderBy: {
+            order: "asc",
+          },
+        },
+      },
     });
     console.log(lists);
 
@@ -97,6 +104,123 @@ export const getAllLists = async (
       success: false,
       message: "Failed to Load lists",
       error: error.message,
+    });
+  }
+};
+
+export const handleDeleteList = async (req: Request, res: Response) => {
+  try {
+    const { boardId, listId } = req.body;
+
+    console.log(boardId, listId);
+
+    if (!boardId) {
+      return res.status(400).json({
+        success: false,
+        message: "Board ID is required",
+      });
+    }
+
+    if (!listId) {
+      return res.status(400).json({
+        success: false,
+        message: "List ID is required",
+      });
+    }
+
+    const boardExists = await prisma.board.findUnique({
+      where: {
+        id: boardId,
+      },
+    });
+
+    if (!boardExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Board  not found",
+      });
+    }
+
+    const listExists = await prisma.list.findUnique({
+      where: {
+        id: listId,
+      },
+    });
+
+    if (!listExists) {
+      return res.status(404).json({
+        success: false,
+        message: "List not found",
+      });
+    }
+
+    const deleteList = await prisma.list.delete({
+      where: { id: listId },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "List is Deleted",
+      data: deleteList,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};
+export const handleUpdateList = async (req: Request, res: Response) => {
+  try {
+    const { listId, title } = req.body;
+
+    console.log(listId);
+    console.log(title);
+
+    if (!listId) {
+      return res.status(400).json({
+        success: false,
+        message: "List ID is required",
+      });
+    }
+
+    const listExists = await prisma.list.findUnique({
+      where: {
+        id: listId,
+      },
+    });
+
+    if (!listExists) {
+      return res.status(404).json({
+        success: false,
+        message: "List not found",
+      });
+    }
+
+    if (listExists.title === title) {
+      return res.status(200).json({
+        success: true,
+        message: "No changes made",
+        data: listExists,
+      });
+    }
+    const updateList = await prisma.list.update({
+      where: { id: listId },
+      data: {
+        title: title.trim(),
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      message: "List  is Updated",
+      data: updateList,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      error: "Server Error",
     });
   }
 };

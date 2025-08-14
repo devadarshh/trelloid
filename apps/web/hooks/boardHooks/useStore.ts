@@ -62,7 +62,7 @@ export const useCreateBoardStore = create<CreateBoardStore>((set) => ({
 }));
 
 type Board = {
-  id: string;
+  id?: string;
   title: string;
   imageThumbUrl: string;
   imageFullUrl: string;
@@ -102,4 +102,15 @@ interface BoardId {
 export const useBoardIdStore = create<BoardId>((set) => ({
   BoardId: "",
   setBoardId: (newBoardId) => set({ BoardId: newBoardId }),
+}));
+
+interface RefreshBoard {
+  refreshBoards: boolean;
+  triggerRefreshBoards: (newRefresh: boolean) => void;
+}
+
+export const useRefreshBoard = create<RefreshBoard>((set) => ({
+  refreshBoards: false,
+  triggerRefreshBoards: () =>
+    set((state) => ({ refreshBoards: !state.refreshBoards })),
 }));

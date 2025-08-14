@@ -9,13 +9,18 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@clerk/nextjs";
 import axios from "axios";
 import { toast } from "sonner";
-import { useGetBoardStore, useLoadingStore } from "hooks/boardHooks/useStore";
+import {
+  useGetBoardStore,
+  useLoadingStore,
+  useRefreshBoard,
+} from "hooks/boardHooks/useStore";
 import { MoreHorizontal, Trash2, X } from "lucide-react";
 import React from "react";
 import { useRouter } from "next/navigation";
 
 const BoardOptions = () => {
   const { currentBoard } = useGetBoardStore();
+  const { triggerRefreshBoards } = useRefreshBoard();
   const { isLoading, setLoading } = useLoadingStore();
   const { getToken } = useAuth();
   const router = useRouter();
@@ -37,6 +42,7 @@ const BoardOptions = () => {
         withCredentials: true,
       });
       toast.success("Board Deleted Successfully");
+      triggerRefreshBoards(true);
       setTimeout(() => {
         router.push(`/organization/${organizationId}`);
       }, 1500);

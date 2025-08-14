@@ -37,7 +37,7 @@ interface CreateListStore {
   lists: List[];
   setTitle: (newTitle: string) => void;
   setId: (newId: string) => void;
-  setLists: (newLists: List[]) => void;
+  setLists: (lists: List[] | ((prev: List[]) => List[])) => void;
 }
 
 export const useCreateListStore = create<CreateListStore>((set) => ({
@@ -46,5 +46,8 @@ export const useCreateListStore = create<CreateListStore>((set) => ({
   lists: [],
   setTitle: (newTitle) => set({ title: newTitle }),
   setId: (newID) => set({ id: newID }),
-  setLists: (newLists) => set({ lists: newLists }),
+  setLists: (updater) =>
+    set((state) => ({
+      lists: typeof updater === "function" ? updater(state.lists) : updater,
+    })),
 }));
