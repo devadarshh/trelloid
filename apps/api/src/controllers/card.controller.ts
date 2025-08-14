@@ -88,3 +88,35 @@ export const getAllCards = async (
     });
   }
 };
+
+export const getCardDetails = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Card ID is required" });
+    }
+    const card = await prisma.card.findUnique({
+      where: { id },
+      include: {
+        list: {
+          select: { title: true },
+        },
+      },
+    });
+    if (!card) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Card not found" });
+    }
+
+    return res.status(200).json({ success: true, data: card });
+  } catch (error: any) {
+    console.error("Error fetching card:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};

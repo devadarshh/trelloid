@@ -3,14 +3,13 @@
 
 import { useAuth } from "@clerk/nextjs";
 import axios from "axios";
-import { AddListButton } from "components/List/AddList";
-import RenderAllLists from "components/List/RenderAllLists";
 import { useBoardIdStore, useLoadingStore } from "hooks/boardHooks/useStore";
 import { useCreateListStore } from "hooks/listHooks/useStore";
 import { useRefreshList } from "hooks/listHooks/useStore";
 import { useEffect, useState } from "react";
 import ListContainer from "./_components/ListContainer";
 import { useRefreshCards } from "hooks/cardHooks/useStore";
+import { CardModal } from "components/modals/card-modal/index";
 
 interface BoardIdProps {
   params: { boardId: string };
@@ -19,7 +18,7 @@ interface BoardIdProps {
 export default function BoardIdPage({ params }: BoardIdProps) {
   const { getToken } = useAuth();
   const { boardId } = params;
-  const { BoardId, setBoardId } = useBoardIdStore();
+  const { setBoardId } = useBoardIdStore();
   const { setLoading } = useLoadingStore();
   const { refreshLists } = useRefreshList();
   const { lists, setLists } = useCreateListStore();
@@ -52,11 +51,10 @@ export default function BoardIdPage({ params }: BoardIdProps) {
     fetchAllLists();
   }, [boardId, refreshLists, refreshCards]);
 
-
   return (
     <div className="flex items-start gap-4 px-6 overflow-x-auto h-full mt-6">
       <ListContainer data={lists} />
-      {/* <RenderAllLists /> */}
+      <CardModal />
     </div>
   );
 }

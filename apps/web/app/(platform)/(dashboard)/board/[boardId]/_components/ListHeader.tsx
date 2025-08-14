@@ -68,7 +68,7 @@ const ListHeader = ({ data }: ListHeaderProps) => {
         )
       );
 
-      triggerRefreshLists(true);
+      // triggerRefreshLists(true);
       toast.success("List renamed successfully");
     } catch (error: any) {
       toast.error("Error renaming list");

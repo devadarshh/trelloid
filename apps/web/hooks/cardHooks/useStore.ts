@@ -35,3 +35,20 @@ export const useRefreshCards = create<RefreshCard>((set) => ({
   triggerRefreshCards: () =>
     set((state) => ({ refreshCards: !state.refreshCards })),
 }));
+
+type CardModalStore = {
+  id?: string;
+  isOpen: boolean;
+  onOpen: (id: string) => void;
+  onClose: () => void;
+};
+
+export const useCardModal = create<CardModalStore>((set) => ({
+  id: undefined,
+  isOpen: false,
+  onOpen: (id: string) => {
+    console.log("Setting modal open with id:", id);
+    set({ isOpen: true, id });
+  },
+  onClose: () => set({ isOpen: false, id: undefined }),
+}));

@@ -25,9 +25,7 @@ const ListOptions = ({ data }: ListOptionsProps) => {
   const { isLoading, setLoading } = useLoadingStore();
   const { getToken } = useAuth();
   const { BoardId } = useBoardIdStore();
-  console.log("Board id is ssdfasfasf", BoardId);
   const listId = data.id;
-  console.log("list id is", listId);
 
   const handleDeleteList = async () => {
     try {

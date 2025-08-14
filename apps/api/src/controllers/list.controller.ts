@@ -189,6 +189,7 @@ export const handleUpdateList = async (req: Request, res: Response) => {
       where: {
         id: listId,
       },
+      select: { order: true, title: true },
     });
 
     if (!listExists) {
@@ -209,6 +210,7 @@ export const handleUpdateList = async (req: Request, res: Response) => {
       where: { id: listId },
       data: {
         title: title.trim(),
+        order: listExists?.order,
       },
     });
     return res.status(200).json({
