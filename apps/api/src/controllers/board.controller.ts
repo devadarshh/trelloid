@@ -159,7 +159,6 @@ export const handleDeleteBoard = async (req: Request, res: Response) => {
 
 export const handleUpdateBoard = async (req: Request, res: Response) => {
   try {
-    // take the updated value that you want
     const { boardId, title } = req.body;
 
     console.log(boardId);

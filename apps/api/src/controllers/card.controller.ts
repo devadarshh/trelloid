@@ -208,6 +208,51 @@ export const handleCopyCard = async (req: Request, res: Response) => {
 
 export const handleUpdateCard = async (req: Request, res: Response) => {
   try {
+    const { cardId, description, title } = req.body;
+
+    if (!cardId) {
+      return res.status(400).json({
+        success: false,
+        message: "Card ID is required",
+      });
+    }
+
+    const cardExists = await prisma.card.findUnique({
+      where: { id: cardId },
+    });
+
+    if (!cardExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Card not found",
+      });
+    }
+
+    // Check if both values are the same
+    if (
+      (title === undefined || title === cardExists.title) &&
+      (description === undefined || description === cardExists.description)
+    ) {
+      return res.status(200).json({
+        success: true,
+        message: "No changes detected",
+        data: cardExists,
+      });
+    }
+
+    const updatedCard = await prisma.card.update({
+      where: { id: cardId },
+      data: {
+        title: title ?? cardExists.title,
+        description: description ?? cardExists.description,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Card updated successfully",
+      data: updatedCard,
+    });
   } catch (error: any) {
     console.error(error);
     return res.status(400).json({
