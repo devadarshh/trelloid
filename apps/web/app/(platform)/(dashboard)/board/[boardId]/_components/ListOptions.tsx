@@ -9,7 +9,12 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@clerk/nextjs";
 import { List } from "@prisma/client";
 import axios from "axios";
-import { useBoardIdStore, useLoadingStore } from "hooks/boardHooks/useStore";
+import {
+  useBoardIdStore,
+  useLoadingStore,
+  useRefreshBoard,
+} from "hooks/boardHooks/useStore";
+import { useRefreshCards } from "hooks/cardHooks/useStore";
 import { useRefreshList } from "hooks/listHooks/useStore";
 import { MoreHorizontal, Trash2, X } from "lucide-react";
 import { ElementRef, useRef } from "react";
@@ -21,12 +26,38 @@ interface ListOptionsProps {
 
 const ListOptions = ({ data }: ListOptionsProps) => {
   const closeRef = useRef<ElementRef<"button">>(null);
+  const { triggerRefreshBoards } = useRefreshBoard();
+  const { triggerRefreshCards } = useRefreshCards();
   const { triggerRefreshLists } = useRefreshList();
   const { isLoading, setLoading } = useLoadingStore();
   const { getToken } = useAuth();
   const { BoardId } = useBoardIdStore();
   const listId = data.id;
+  const handleCopyList = async () => {
+    try {
+      setLoading(true);
+      const token = await getToken();
+      const response = await axios.post(
+        "http://localhost:5000/api/v1/copy-list",
+        { listId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
 
+      toast.success("List copied successfully");
+      triggerRefreshLists(true);
+      triggerRefreshBoards(true);
+      triggerRefreshCards(true);
+      closeRef.current?.click();
+    } catch (error: any) {
+      toast.error("Error Copying List");
+      console.error(error.message || "Error Copying List");
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleDeleteList = async () => {
     try {
       setLoading(true);
@@ -70,17 +101,13 @@ const ListOptions = ({ data }: ListOptionsProps) => {
             <X className="h-4 w-4" />
           </Button>
         </PopoverClose>
-        <Button
-          className="rounded-none w-full h-auto p-2 px-5 justify-start font-normal text-sm"
-          variant="ghost"
-        >
-          Add card...
-        </Button>
         <form>
           <input hidden />
           <input hidden />
           <Button
             variant={"ghost"}
+            disabled={isLoading}
+            onClick={handleCopyList}
             className="rounded-none w-full h-auto p-2 px-5 justify-start font-normal text-sm"
           >
             Copy list...

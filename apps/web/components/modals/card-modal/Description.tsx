@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlignLeft } from "lucide-react";
 import { ElementRef, useRef, useState } from "react";
 
-const Description = () => {
+const Description = ({ data }: any) => {
   const [isEditing, setIsEditing] = useState(false);
   const formRef = useRef<ElementRef<"form">>(null);
   const textareaRef = useRef<ElementRef<"textarea">>(null);
@@ -31,7 +31,7 @@ const Description = () => {
               id="description"
               className="w-full mt-2"
               placeholder="Add a more detailed description"
-              //   defaultValue={data.description || undefined}
+              defaultValue={data.description || undefined}
               ref={textareaRef}
             />
             <div className="flex items-center gap-x-2">
@@ -52,7 +52,7 @@ const Description = () => {
             role="button"
             className="min-h-[78px] bg-neutral-200 text-sm font-medium py-3 px-3.5 rounded-md"
           >
-            {"Add a more detailed description..."}
+            {data?.description || undefined}
           </div>
         )}
       </div>

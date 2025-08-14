@@ -120,3 +120,99 @@ export const getCardDetails = async (req: Request, res: Response) => {
       .json({ success: false, message: "Internal server error" });
   }
 };
+
+export const handleDeleteCard = async (req: Request, res: Response) => {
+  try {
+    const { cardId } = req.body;
+
+    if (!cardId) {
+      return res.status(400).json({
+        success: false,
+        message: "Card ID is required",
+      });
+    }
+
+    const cardExists = await prisma.card.findUnique({
+      where: { id: cardId },
+    });
+
+    if (!cardExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Card not found",
+      });
+    }
+
+    const deletedCard = await prisma.card.delete({
+      where: { id: cardId },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Card deleted successfully",
+      data: deletedCard,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};
+
+export const handleCopyCard = async (req: Request, res: Response) => {
+  try {
+    const { cardId } = req.body;
+
+    if (!cardId) {
+      return res.status(400).json({
+        success: false,
+        message: "Card ID is required",
+      });
+    }
+
+    const cardExists = await prisma.card.findUnique({
+      where: { id: cardId },
+    });
+
+    if (!cardExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Card not found",
+      });
+    }
+    const newCard = await prisma.card.create({
+      data: {
+        title: `${cardExists.title} (Copy)`,
+        description: cardExists.description
+          ? `${cardExists.description} (Copy)`
+          : null,
+        order: cardExists.order + 1,
+        listId: cardExists.listId,
+      },
+    });
+    return res.status(201).json({
+      success: true,
+      message: "Copy List created successfully",
+      data: newCard,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};
+
+export const handleUpdateCard = async (req: Request, res: Response) => {
+  try {
+  } catch (error: any) {
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};

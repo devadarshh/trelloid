@@ -226,3 +226,56 @@ export const handleUpdateList = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const handleCopyList = async (req: Request, res: Response) => {
+  try {
+    const { listId } = req.body;
+
+    console.log(listId);
+
+    if (!listId) {
+      return res.status(400).json({
+        success: false,
+        message: "List ID is required",
+      });
+    }
+
+    const listExists = await prisma.list.findUnique({
+      where: { id: listId },
+      include: { cards: true },
+    });
+
+    if (!listExists) {
+      return res.status(404).json({
+        success: false,
+        message: "List not found",
+      });
+    }
+    const newList = await prisma.list.create({
+      data: {
+        title: `${listExists.title} (Copy)`,
+        order: listExists.order + 1,
+        boardId: listExists.boardId,
+        cards: {
+          create: listExists.cards.map((card) => ({
+            title: card.title,
+            description: card.description,
+            order: card.order,
+          })),
+        },
+      },
+      include: { cards: true },
+    });
+    return res.status(201).json({
+      success: true,
+      message: "Copy List created successfully",
+      data: newList,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};
