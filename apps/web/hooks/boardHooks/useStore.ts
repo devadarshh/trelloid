@@ -104,13 +104,22 @@ export const useBoardIdStore = create<BoardId>((set) => ({
   setBoardId: (newBoardId) => set({ BoardId: newBoardId }),
 }));
 
-interface RefreshBoard {
-  refreshBoards: boolean;
-  triggerRefreshBoards: (newRefresh: boolean) => void;
-}
+type RefreshBoardState = {
+  shouldRefresh: boolean;
+  triggerRefreshBoards: () => void;
+  resetRefresh: () => void;
+};
 
-export const useRefreshBoard = create<RefreshBoard>((set) => ({
-  refreshBoards: false,
+export const useRefreshBoard = create<RefreshBoardState>((set) => ({
+  shouldRefresh: false,
   triggerRefreshBoards: () =>
-    set((state) => ({ refreshBoards: !state.refreshBoards })),
+    set(() => {
+      console.log("🔥 Zustand: triggerRefreshBoards");
+      return { shouldRefresh: true };
+    }),
+  resetRefresh: () =>
+    set(() => {
+      console.log("🧹 Zustand: resetRefresh");
+      return { shouldRefresh: false };
+    }),
 }));

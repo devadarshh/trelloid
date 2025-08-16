@@ -1,7 +1,6 @@
 "use client";
 
-import BoardList from "components/board/BoardList";
-import CreateBoard from "components/board/CreateBoard";
+import BoardList from "app/(platform)/(dashboard)/board/[boardId]/_components/BoardList";
 import { Separator } from "@/components/ui/separator";
 
 import React, { Suspense } from "react";
@@ -19,11 +18,9 @@ const OrganizationIdPage = ({ params }: OrganizationIdProps) => {
       <Separator className="my-4" />
       <div className="px-2 md:px-4">
         <Suspense fallback={<BoardList.Skeleton />}>
-          <BoardList />
+          <BoardList organizationId={organizationId} />
         </Suspense>
       </div>
-
-      <CreateBoard organizationId={organizationId} />
     </div>
   );
 };

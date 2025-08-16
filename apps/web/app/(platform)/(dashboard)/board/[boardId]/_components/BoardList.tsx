@@ -17,49 +17,54 @@ import {
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
 import { HelpCircle, User2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import CreateBoardPopover from "./CreateBoardPopover";
 
-type Board = {
-  id: string;
-  title: string;
-};
-
-const BoardList = () => {
+const BoardList = ({ organizationId }: any) => {
   const { isLoading, setLoading } = useLoadingStore();
   const { getToken } = useAuth();
-  const { orgId } = useOrganizationIdStore();
-  const { refreshBoards } = useRefreshBoard();
+  const { orgId, setOrgId } = useOrganizationIdStore();
+  const { resetRefresh, shouldRefresh } = useRefreshBoard();
   const { boards, setBoards, setCurrentBoard } = useGetBoardStore();
+
+  // ✅ Set orgId once
   useEffect(() => {
-    if (!orgId) {
-      console.warn("No orgId available yet. Waiting...");
-      return;
+    if (organizationId) {
+      setOrgId(organizationId);
     }
+  }, [organizationId, setOrgId]);
+
+  // ✅ Fetch boards only on mount + when shouldRefresh === true
+  useEffect(() => {
+    if (!orgId) return;
+
     const fetchAllBoards = async () => {
       try {
         const token = await getToken();
         setLoading(true);
-        console.log("Fetching boards for orgId:", orgId);
+
         const response = await axios.get(
           "http://localhost:5000/api/v1/boards",
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
             params: { orgId },
             withCredentials: true,
           }
         );
-        console.log(response.data);
+
         setBoards(response.data.data);
       } catch (error: any) {
-        console.error(error.message || "Error Fetching All Board");
+        console.error(error.message || "Error fetching boards");
       } finally {
         setLoading(false);
+        resetRefresh(); // ✅ clear refresh flag only after refetch
       }
     };
-    fetchAllBoards();
-  }, [orgId, refreshBoards]);
+
+    if ((boards.length === 0 && !isLoading) || shouldRefresh) {
+      fetchAllBoards();
+    }
+  }, [orgId, shouldRefresh]); // ✅ only these deps
 
   return (
     <div className="space-y-4">
@@ -85,30 +90,33 @@ const BoardList = () => {
           ))
         )}
 
+        {/* ✅ Create board popover */}
         <Popover>
-          <PopoverTrigger>Open</PopoverTrigger>
-          <PopoverContent>
-            {" "}
-            <div
-              role="button"
+          <PopoverTrigger asChild>
+            <button
+              type="button"
               className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col gap-y-1 items-center justify-center hover:opacity-75 transition"
             >
               <p className="text-sm">Create new board</p>
-              <span className="text-xs">
-                {/* {isPro
-                  ? "Unlimited"
-                  : `${MAX_FREE_BOARDS - availableCount} remaining`} */}
-                5 remaining
-              </span>
+              <span className="text-xs">5 remaining</span>
               <Hint
                 sideOffset={40}
                 description={`
-                Free Workspaces can have up to 5 open boards. For unlimited boards upgrade this workspace.
-              `}
+          Free Workspaces can have up to 5 open boards. For unlimited boards upgrade this workspace.
+        `}
               >
                 <HelpCircle className="absolute bottom-2 right-2 h-[14px] w-[14px]" />
               </Hint>
-            </div>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="center"
+            sideOffset={18}
+            side="bottom"
+            avoidCollisions={false}
+            className="w-80 max-h-[80vh] overflow-y-auto"
+          >
+            <CreateBoardPopover />
           </PopoverContent>
         </Popover>
       </div>
@@ -120,15 +128,10 @@ export default BoardList;
 
 BoardList.Skeleton = function SkeletonBoardList() {
   return (
-    <div className="grid gird-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-      <Skeleton className="aspect-video h-full w-full p-2" />
-      <Skeleton className="aspect-video h-full w-full p-2" />
-      <Skeleton className="aspect-video h-full w-full p-2" />
-      <Skeleton className="aspect-video h-full w-full p-2" />
-      <Skeleton className="aspect-video h-full w-full p-2" />
-      <Skeleton className="aspect-video h-full w-full p-2" />
-      <Skeleton className="aspect-video h-full w-full p-2" />
-      <Skeleton className="aspect-video h-full w-full p-2" />
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <Skeleton key={i} className="aspect-video h-full w-full p-2" />
+      ))}
     </div>
   );
 };
