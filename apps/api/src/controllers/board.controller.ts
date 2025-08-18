@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
+import { createAuditLog } from "../utils/activityServices";
+import { ACTION, ENTITY_TYPE } from "@prisma/client";
 
 export const handleCreateBoard = async (
   req: Request,
@@ -54,7 +56,13 @@ export const handleCreateBoard = async (
         },
       },
     });
-    console.log("9");
+    await createAuditLog({
+      entityTitle: newBoard.title,
+      entityId: newBoard.id,
+      entityType: ENTITY_TYPE.BOARD,
+      action: ACTION.CREATE,
+      req,
+    });
     return res.status(201).json({
       success: true,
       message: "Board created successfully",
@@ -143,6 +151,13 @@ export const handleDeleteBoard = async (req: Request, res: Response) => {
       where: { id: boardId },
     });
 
+    await createAuditLog({
+      entityTitle: deleteBoard.title,
+      entityId: deleteBoard.id,
+      entityType: ENTITY_TYPE.BOARD,
+      action: ACTION.DELETE,
+      req,
+    });
     return res.status(200).json({
       success: true,
       message: "Board is Deleted",
@@ -197,6 +212,14 @@ export const handleUpdateBoard = async (req: Request, res: Response) => {
         title: title.trim(),
       },
     });
+    await createAuditLog({
+      entityTitle: updateBoard.title,
+      entityId: updateBoard.id,
+      entityType: ENTITY_TYPE.BOARD,
+      action: ACTION.UPDATE,
+      req,
+    });
+
     return res.status(200).json({
       success: true,
       message: "Board  is Updated",

@@ -157,6 +157,13 @@ export const handleDeleteCard = async (req: Request, res: Response) => {
       where: { id: cardId },
     });
 
+    await createAuditLog({
+      entityId: deletedCard.id,
+      entityType: ENTITY_TYPE.CARD,
+      entityTitle: deletedCard.title,
+      action: ACTION.DELETE,
+      req,
+    });
     return res.status(200).json({
       success: true,
       message: "Card deleted successfully",
@@ -202,6 +209,15 @@ export const handleCopyCard = async (req: Request, res: Response) => {
         listId: cardExists.listId,
       },
     });
+
+    await createAuditLog({
+      entityTitle: newCard.title,
+      entityId: newCard.id,
+      entityType: ENTITY_TYPE.CARD,
+      action: ACTION.CREATE,
+      req,
+    });
+
     return res.status(201).json({
       success: true,
       message: "Copy List created successfully",
@@ -256,6 +272,14 @@ export const handleUpdateCard = async (req: Request, res: Response) => {
         title: title ?? cardExists.title,
         description: description ?? cardExists.description,
       },
+    });
+
+    await createAuditLog({
+      entityTitle: updatedCard.title,
+      entityId: updatedCard.id,
+      entityType: ENTITY_TYPE.CARD,
+      action: ACTION.UPDATE,
+      req,
     });
 
     return res.status(200).json({

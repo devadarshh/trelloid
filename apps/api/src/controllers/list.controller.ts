@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
 import { ListWithCards } from "../types/express";
+import { createAuditLog } from "../utils/activityServices";
+import { ACTION, ENTITY_TYPE } from "@prisma/client";
 
 export const handleCreateList = async (
   req: Request,
@@ -48,6 +50,13 @@ export const handleCreateList = async (
       },
     });
 
+    await createAuditLog({
+      entityTitle: newList.title,
+      entityId: newList.id,
+      entityType: ENTITY_TYPE.LIST,
+      action: ACTION.CREATE,
+      req,
+    });
     return res.status(201).json({
       success: true,
       message: "List created successfully",
@@ -158,7 +167,13 @@ export const handleDeleteList = async (req: Request, res: Response) => {
     const deleteList = await prisma.list.delete({
       where: { id: listId },
     });
-
+    await createAuditLog({
+      entityTitle: deleteList.title,
+      entityId: deleteList.id,
+      entityType: ENTITY_TYPE.LIST,
+      action: ACTION.DELETE,
+      req,
+    });
     return res.status(200).json({
       success: true,
       message: "List is Deleted",
@@ -214,6 +229,13 @@ export const handleUpdateList = async (req: Request, res: Response) => {
         order: listExists?.order,
       },
     });
+    await createAuditLog({
+      entityTitle: updateList.title,
+      entityId: updateList.id,
+      entityType: ENTITY_TYPE.CARD,
+      action: ACTION.UPDATE,
+      req,
+    });
     return res.status(200).json({
       success: true,
       message: "List  is Updated",
@@ -266,6 +288,14 @@ export const handleCopyList = async (req: Request, res: Response) => {
         },
       },
       include: { cards: true },
+    });
+
+    await createAuditLog({
+      entityTitle: newList.title,
+      entityId: newList.id,
+      entityType: ENTITY_TYPE.LIST,
+      action: ACTION.CREATE,
+      req,
     });
     return res.status(201).json({
       success: true,
