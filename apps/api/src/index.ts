@@ -8,6 +8,7 @@ import unsplashRoutes from "./routers/unsplash.route";
 import boardRoutes from "./routers/board.route";
 import listRoutes from "./routers/list.route";
 import cardRoutes from "./routers/card.route";
+import activityRoutes from "./routers/activity.route";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/", orgWebHook);
 app.use("/api/v1", boardRoutes);
 app.use("/api/v1", listRoutes);
 app.use("/api/v1", cardRoutes);
+app.use("/api/v1/audit-logs", activityRoutes);
 app.use("/api", unsplashRoutes);
 
 const PORT = process.env.PORT || 6000;

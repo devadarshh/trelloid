@@ -1,4 +1,6 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { generateLogMessage } from "@/lib/generated-log-message";
+import { format } from "date-fns";
 
 // interface ActivityItemProps {
 //   data: AuditLog;
@@ -15,10 +17,10 @@ export const ActivityItem = ({ data }: any) => {
           <span className="font-semibold lowercase text-neutral-700">
             {data.userName}
           </span>{" "}
-          {/* {generateLogMessage(data)} */}
+          {generateLogMessage(data)}
         </p>
         <p className="text-xs text-muted-foreground">
-          {/* {format(new Date(data.createdAt), "MMM d, yyyy 'at' h:mm a")} */}
+          {format(new Date(data.createdAt), "MMM d, yyyy 'at' h:mm a")}
         </p>
       </div>
     </li>

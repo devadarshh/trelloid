@@ -26,6 +26,7 @@ model User {
   
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
+  auditLogs      AuditLog[] // New field to link AuditLog to User
 }
 
 model Organization {
@@ -37,7 +38,9 @@ model Organization {
   updatedAt       DateTime @updatedAt
   
   users           User[]
-  boards  Board[]
+  boards          Board[]
+  orgLimit        OrgLimit? // New relation field
+  orgSubscription OrgSubscription? // New relation field
 }
 
 model Board {
@@ -84,4 +87,55 @@ model Card {
   updatedAt           DateTime @updatedAt
 
   @@index([listId])
+}
+enum ACTION {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum ENTITY_TYPE {
+  BOARD
+  LIST
+  CARD
+}
+
+model AuditLog {
+  id                  String  @id @default(uuid())
+  orgId               String
+  action              ACTION
+  entityId            String
+  entityType          ENTITY_TYPE
+  entityTitle         String
+  userId              String // Foreign key field
+  user                User    @relation(fields: [userId], references: [id]) // Relation field
+  userImage           String @db.Text
+  userName            String @db.Text
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime  @updatedAt
+
+}
+model OrgLimit {
+  id                  String @id @default(uuid())
+  orgId               String @unique
+  count               Int @default(0)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime  @updatedAt
+
+
+  organization        Organization @relation(fields: [orgId], references: [organizationId])
+}
+
+model OrgSubscription {
+  id                  String @id @default(uuid())
+  orgId               String @unique
+
+  stripeCustomerId            String? @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId        String? @unique @map(name: "stripe_subscription_id")
+  stripePriceId               String? @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd      DateTime? @map(name: "stripe_current_period_end")
+
+  organization        Organization @relation(fields: [orgId], references: [organizationId])
 }

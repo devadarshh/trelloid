@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
+import { ListWithCards } from "../types/express";
 
 export const handleCreateList = async (
   req: Request,
@@ -277,5 +278,22 @@ export const handleCopyList = async (req: Request, res: Response) => {
       success: false,
       error: "Server Error",
     });
+  }
+};
+
+export const handleListReorder = async (req: Request, res: Response) => {
+  try {
+    const { items, boardId } = req.body;
+    const transaction = items.map((list: ListWithCards) =>
+      prisma.list.update({
+        where: { id: list.id, boardId: boardId },
+        data: { order: list.order },
+      })
+    );
+    await prisma.$transaction(transaction);
+    res.status(200).json({ message: "List order updated successfully." });
+  } catch (error) {
+    console.error("API Error:", error);
+    res.status(500).json({ message: "Failed to update list order." });
   }
 };

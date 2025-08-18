@@ -5,6 +5,7 @@ import {
   handleCopyList,
   handleCreateList,
   handleDeleteList,
+  handleListReorder,
   handleUpdateList,
 } from "../controllers/list.controller";
 const router = express.Router();
@@ -15,5 +16,6 @@ router.get("/lists", requireAuth(), getAllLists);
 router.delete("/delete-list", requireAuth(), handleDeleteList);
 router.put("/update-list", requireAuth(), handleUpdateList);
 router.put("/update-list", requireAuth(), handleUpdateList);
+router.put("/lists/reorder", requireAuth(), handleListReorder);
 
 export default router;

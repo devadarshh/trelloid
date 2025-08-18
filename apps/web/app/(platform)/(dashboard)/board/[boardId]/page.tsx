@@ -53,7 +53,7 @@ export default function BoardIdPage({ params }: BoardIdProps) {
 
   return (
     <div className="flex items-start gap-4 px-6 overflow-x-auto h-full mt-6">
-      <ListContainer data={lists} />
+      <ListContainer boardId={boardId} data={lists} />
       <CardModal />
     </div>
   );

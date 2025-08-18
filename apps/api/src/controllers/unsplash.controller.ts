@@ -13,9 +13,10 @@ export const getUnsplashImages = async (
       count,
     });
     if (response.type === "error") {
+      console.error("Unsplash API error:", response.errors);
       return res.status(500).json({ error: response.errors });
     }
-    res.json(response.response);
+    return res.json(response.response);
   } catch (error) {
     console.error("Error fetching Unsplash images:", error);
     res.status(500).json({ error: "Failed to fetch images" });

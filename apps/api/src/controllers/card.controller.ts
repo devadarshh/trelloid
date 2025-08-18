@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
-
+import { Card } from "../types/express";
+import { createAuditLog } from "../utils/activityServices";
+import { ACTION, ENTITY_TYPE } from "@prisma/client";
 export const handleCreateCard = async (
   req: Request,
   res: Response
@@ -33,6 +35,14 @@ export const handleCreateCard = async (
           },
         },
       },
+    });
+
+    await createAuditLog({
+      entityId: newCard.id,
+      entityType: ENTITY_TYPE.CARD,
+      entityTitle: newCard.title,
+      action: ACTION.CREATE,
+      req,
     });
 
     return res.status(201).json({
@@ -253,6 +263,29 @@ export const handleUpdateCard = async (req: Request, res: Response) => {
       message: "Card updated successfully",
       data: updatedCard,
     });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};
+
+export const handleCardReorder = async (req: Request, res: Response) => {
+  try {
+    const { items, boardId } = req.body;
+    const transaction = items.map((card: Card) =>
+      prisma.card.update({
+        where: { id: card.id, list: { boardId: boardId } },
+        data: {
+          order: card.order,
+          listId: card.listId, // Update listId if the card moved lists
+        },
+      })
+    );
+    await prisma.$transaction(transaction);
+    res.status(200).json({ message: "Card order updated successfully." });
   } catch (error: any) {
     console.error(error);
     return res.status(400).json({

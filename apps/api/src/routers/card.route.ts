@@ -3,6 +3,7 @@ import { requireAuth } from "@clerk/express";
 import {
   getAllCards,
   getCardDetails,
+  handleCardReorder,
   handleCopyCard,
   handleCreateCard,
   handleDeleteCard,
@@ -16,5 +17,6 @@ router.get("/cards", requireAuth(), getAllCards);
 router.delete("/delete-card", requireAuth(), handleDeleteCard);
 router.get("/card/:id", requireAuth(), getCardDetails);
 router.put("/update-card", requireAuth(), handleUpdateCard);
+router.put("/cards/reorder", requireAuth(), handleCardReorder);
 
 export default router;
