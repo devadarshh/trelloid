@@ -1,30 +1,25 @@
 import Link from "next/link";
-
 import { Logo } from "components/Logo";
 import { Button } from "@/components/ui/button";
 
 export const NavBar = () => {
   return (
-    <div
-      className="fixed top-0 w-full h-14 px-4 border-b shadow-sm bg-white flex items-center"
-      data-testid="navbar_wrapper"
-    >
-      <div className="md:max-w-screen-2xl mx-auto flex items-center w-full justify-between">
+    <nav className="fixed top-0 flex h-14 w-full items-center border-b bg-white px-4 shadow-sm">
+      <div className="mx-auto flex w-full items-center justify-between md:max-w-screen-2xl">
         <Logo />
-        <div className="space-x-4 md:block md:w-auto flex items-center justify-between w-full">
-          <Button
-            size="sm"
-            variant="outline"
-            asChild
-            data-testid="navbar_login_button"
-          >
-            <Link href="/sign-in">Login</Link>
+        <div className="flex w-full items-center justify-between space-x-4 md:block md:w-auto">
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/sign-in" aria-label="Login">
+              Login
+            </Link>
           </Button>
-          <Button size="sm" asChild data-testid="navbar_get_taskify_button">
-            <Link href="/sign-up">Get Trelloid for free</Link>
+          <Button size="sm" asChild>
+            <Link href="/sign-up" aria-label="Get Trelloid for free">
+              Get Trelloid for free
+            </Link>
           </Button>
         </div>
       </div>
-    </div>
+    </nav>
   );
 };

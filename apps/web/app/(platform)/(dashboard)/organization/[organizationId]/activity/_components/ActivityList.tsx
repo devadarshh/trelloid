@@ -6,25 +6,36 @@ import { useAuth } from "@clerk/nextjs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ActivityItem } from "components/ActivityItem";
 
-export const ActivityList = () => {
+interface AuditLog {
+  id: string;
+  action: string;
+  user: string;
+  timestamp: string;
+  [key: string]: any;
+}
+
+export const ActivityList: React.FC & { Skeleton: React.FC } = () => {
   const { getToken, orgId } = useAuth(); // Clerk auth
-  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!orgId) return;
+
     const fetchLogs = async () => {
       try {
-        const token = await getToken();
-        if (!token || !orgId) return;
-
         setLoading(true);
-        const response = await axios.get(
+        const token = await getToken();
+        if (!token) return;
+
+        const response = await axios.get<{ data: AuditLog[] }>(
           `http://localhost:5000/api/v1/audit-logs/org/${orgId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
           }
         );
+
         setAuditLogs(response.data.data || []);
       } catch (error: any) {
         console.error(
@@ -47,7 +58,7 @@ export const ActivityList = () => {
     <ol className="space-y-4 mt-4">
       {auditLogs.length === 0 ? (
         <p className="text-xs text-center text-muted-foreground">
-          No activity found inside this organization
+          No activity found in this organization
         </p>
       ) : (
         auditLogs.map((log) => <ActivityItem key={log.id} data={log} />)

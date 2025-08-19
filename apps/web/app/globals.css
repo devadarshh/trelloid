@@ -1,6 +1,32 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@layer base {
+  /* Existing rules */
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Prevent blinking caret and text selection globally */
+  * {
+    user-select: none; /* Disable text selection */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    caret-color: transparent; /* Hide blinking cursor */
+  }
+
+  /* Allow text selection and caret for form inputs */
+  input,
+  textarea {
+    user-select: text;
+    caret-color: auto;
+  }
+}
+
 html,
 body {
   height: 100%;

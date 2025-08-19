@@ -1,3 +1,4 @@
+import React, { ReactNode } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -6,25 +7,29 @@ import {
 } from "@/components/ui/tooltip";
 
 interface HintProps {
-  children: React.ReactNode;
+  children: ReactNode;
   description: string;
   side?: "left" | "right" | "top" | "bottom";
   sideOffset?: number;
 }
 
-export const Hint = ({
+export const Hint: React.FC<HintProps> = ({
   children,
   description,
   side = "bottom",
-  sideOffset = 0,
-}: HintProps) => {
+  sideOffset = 4,
+}) => {
+  if (!description) return <>{children}</>;
+
   return (
     <TooltipProvider>
       <Tooltip delayDuration={0}>
-        <TooltipTrigger>{children}</TooltipTrigger>
+        <TooltipTrigger asChild>
+          <span className="cursor-pointer">{children}</span>
+        </TooltipTrigger>
         <TooltipContent
-          sideOffset={sideOffset}
           side={side}
+          sideOffset={sideOffset}
           className="text-xs max-w-[220px] break-words"
         >
           {description}

@@ -13,6 +13,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.29.0",
     "@hello-pangea/dnd": "^18.0.1",
+    "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -34,10 +35,13 @@
     "postcss": "^8.5.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.62.0",
     "sonner": "^2.0.7",
+    "stripe": "^18.4.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
     "usehooks-ts": "^3.1.1",
+    "yup": "^1.7.0",
     "zustand": "^5.0.7"
   },
   "devDependencies": {
@@ -47,6 +51,7 @@
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
+    "@types/yup": "^0.29.14",
     "eslint": "^9.31.0",
     "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.3.6",

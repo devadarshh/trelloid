@@ -1,16 +1,14 @@
 import { SignIn } from "@clerk/nextjs";
 
-export default function Page() {
+export default function SignInPage() {
   return (
-    <div className="flex justify-center items-center min-h-screen w-full bg-neutral-50">
-      <SignIn
-        appearance={{
-          elements: {
-            rootBox:
-              "transform scale-90 sm:scale-95 md:scale-100 lg:scale-105 transition-transform duration-300",
-          },
-        }}
-      />
-    </div>
+    <SignIn
+      appearance={{
+        elements: {
+          rootBox:
+            "transform scale-95 sm:scale-100 md:scale-105 lg:scale-110 transition-transform duration-300",
+        },
+      }}
+    />
   );
 }

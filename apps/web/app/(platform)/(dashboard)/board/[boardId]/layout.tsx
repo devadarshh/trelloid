@@ -1,22 +1,31 @@
 "use client";
+
 import { useGetBoardStore } from "hooks/boardHooks/useStore";
-import React from "react";
 import BoardNavBar from "./_components/BoardNavBar";
+import { useEffect } from "react";
 
 const BoardIdLayout = ({ children }: { children: React.ReactNode }) => {
   const { currentBoard } = useGetBoardStore();
 
-  console.log("Current Board:", currentBoard);
+  useEffect(() => {
+    if (currentBoard?.title) {
+      document.title = `${currentBoard.title} | Trelloid`;
+    } else {
+      document.title = "Trelloid";
+    }
+  }, [currentBoard?.title]);
+
   return (
-    <div
-      className="relative min-h-screen h-full bg-no-repeat bg-cover bg-center"
-      style={{
-        backgroundImage: `url(${currentBoard?.imageFullUrl || ""})`,
-      }}
-    >
+    <div className="relative min-h-screen h-full overflow-y-auto">
+      {/* Background fixed */}
+      <div
+        className="fixed inset-0 bg-no-repeat bg-cover bg-center -z-10"
+        style={{ backgroundImage: `url(${currentBoard?.imageFullUrl || ""})` }}
+      />
+      <div className="fixed inset-0 bg-black/10 -z-10" />
+
       <BoardNavBar />
-      <div className="absolute inset-0 bg-black/10" />
-      <main className="relative pt-28 h-full">{children}</main>
+      <main className="relative pt-28">{children}</main>
     </div>
   );
 };

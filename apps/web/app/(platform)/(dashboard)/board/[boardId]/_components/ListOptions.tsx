@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -33,11 +35,12 @@ const ListOptions = ({ data }: ListOptionsProps) => {
   const { getToken } = useAuth();
   const { BoardId } = useBoardIdStore();
   const listId = data.id;
+
   const handleCopyList = async () => {
     try {
       setLoading(true);
       const token = await getToken();
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:5000/api/v1/copy-list",
         { listId },
         {
@@ -51,32 +54,27 @@ const ListOptions = ({ data }: ListOptionsProps) => {
       triggerRefreshBoards(true);
       triggerRefreshCards(true);
       closeRef.current?.click();
-    } catch (error: any) {
-      toast.error("Error Copying List");
-      console.error(error.message || "Error Copying List");
+    } catch {
+      toast.error("Error copying list");
     } finally {
       setLoading(false);
     }
   };
+
   const handleDeleteList = async () => {
     try {
       setLoading(true);
       const token = await getToken();
       await axios.delete("http://localhost:5000/api/v1/delete-list", {
-        data: {
-          boardId: BoardId,
-          listId,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        data: { boardId: BoardId, listId },
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
-      toast.success("List Deleted Successfully");
+      toast.success("List deleted successfully");
       triggerRefreshLists(true);
-    } catch (error: any) {
-      toast.error("Error Deleting List");
-      console.error(error.message || "Error Deleting List");
+      closeRef.current?.click();
+    } catch {
+      toast.error("Error deleting list");
     } finally {
       setLoading(false);
     }
@@ -86,47 +84,48 @@ const ListOptions = ({ data }: ListOptionsProps) => {
     <Popover>
       <PopoverTrigger asChild>
         <Button className="h-auto w-auto p-2 cursor-pointer" variant="ghost">
-          <MoreHorizontal className="h-4 w-4 " />
+          <MoreHorizontal className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
+
       <PopoverContent className="px-0 pt-3 pb-3" side="bottom" align="start">
         <div className="text-sm font-medium text-center text-neutral-600 pb-4">
           List actions
         </div>
+
         <PopoverClose ref={closeRef} asChild>
           <Button
-            className="h-auto w-auto p-2 absolute top-2 right-2 text-neutral-600"
+            className="h-auto w-auto p-2 absolute top-2 right-2 text-neutral-600 cursor-pointer"
             variant="ghost"
           >
             <X className="h-4 w-4" />
           </Button>
         </PopoverClose>
-        <form>
-          <input hidden />
-          <input hidden />
+
+        <div>
           <Button
-            variant={"ghost"}
+            variant="ghost"
             disabled={isLoading}
             onClick={handleCopyList}
-            className="rounded-none w-full h-auto p-2 px-5 justify-start font-normal text-sm"
+            className="rounded-none w-full h-auto p-2 px-5 justify-start font-normal text-sm cursor-pointer"
           >
             Copy list...
           </Button>
-        </form>
+        </div>
+
         <Separator />
+
         <div>
-          <input hidden />
-          <input hidden />
           <Button
             variant="ghost"
             onClick={handleDeleteList}
-            className={`rounded-none w-full h-auto p-2 px-5 justify-start font-normal text-sm text-red-500 hover:bg-red-50 hover:text-red-600 ${isLoading ? "opacity-50 pointer-events-none" : "opacity-100"}`}
+            className={`rounded-none w-full h-auto p-2 px-5 justify-start font-normal text-sm text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer ${
+              isLoading ? "opacity-50 pointer-events-none" : "opacity-100"
+            }`}
           >
             <div className="flex items-center justify-between w-full">
-              <div>Delete this list</div>
-              <div>
-                <Trash2 className="h-4 w-4" />
-              </div>
+              <span>Delete this list</span>
+              <Trash2 className="h-4 w-4" />
             </div>
           </Button>
         </div>

@@ -17,7 +17,7 @@ export const useCreateList = create<CreateList>((set) => ({
 
 interface RefreshList {
   refreshLists: boolean;
-  triggerRefreshLists: (newRefresh: boolean) => void;
+  triggerRefreshLists: () => void;
 }
 
 export const useRefreshList = create<RefreshList>((set) => ({
@@ -25,6 +25,7 @@ export const useRefreshList = create<RefreshList>((set) => ({
   triggerRefreshLists: () =>
     set((state) => ({ refreshLists: !state.refreshLists })),
 }));
+
 interface List {
   title: ReactNode;
   id: string;
@@ -45,7 +46,7 @@ export const useCreateListStore = create<CreateListStore>((set) => ({
   id: "",
   lists: [],
   setTitle: (newTitle) => set({ title: newTitle }),
-  setId: (newID) => set({ id: newID }),
+  setId: (newId) => set({ id: newId }),
   setLists: (updater) =>
     set((state) => ({
       lists: typeof updater === "function" ? updater(state.lists) : updater,

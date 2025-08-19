@@ -45,7 +45,7 @@ export const Header = ({ data }: any) => {
         return;
       }
 
-      const response = await axios.put(
+      await axios.put(
         "http://localhost:5000/api/v1/update-card",
         { cardId: data?.id, title: updatedTitle },
         {
@@ -56,9 +56,9 @@ export const Header = ({ data }: any) => {
       data.title = updatedTitle;
       toast.success("Title updated successfully");
 
-      triggerRefreshLists(true);
-      triggerRefreshBoards(true);
-      triggerRefreshCards(true);
+      triggerRefreshLists();
+      triggerRefreshBoards();
+      triggerRefreshCards();
     } catch (error: any) {
       toast.error("Error renaming title");
       console.error(error.message || error);

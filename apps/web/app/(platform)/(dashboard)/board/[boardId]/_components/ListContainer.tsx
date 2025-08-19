@@ -1,10 +1,10 @@
-// ListContainer.tsx
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { ListItem } from "./ListItem";
 import { ListForm } from "./ListForm";
 import { ListWithCards } from "types";
-import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
 
@@ -13,18 +13,17 @@ interface ListContainerProps {
   boardId: string;
 }
 
-function reorder<T>(list: T[], startIndex: number, endIndex: number) {
+function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed!);
-
   return result;
 }
 
-const BASE_URL = "http://localhost:5000/api/v1"; // Your Express API URL
+const BASE_URL = "http://localhost:5000/api/v1";
 
 const ListContainer = ({ data, boardId }: ListContainerProps) => {
-  const [orderedData, setOrderedData] = useState(data);
+  const [orderedData, setOrderedData] = useState<ListWithCards[]>(data);
   const { getToken } = useAuth();
 
   const executeUpdateListOrder = async (
@@ -35,14 +34,8 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
       const token = await getToken();
       await axios.put(
         `${BASE_URL}/lists/reorder`,
-        {
-          items,
-          boardId,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
+        { items, boardId },
+        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
     } catch (error) {
       console.error("Failed to update list order:", error);
@@ -54,14 +47,8 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
       const token = await getToken();
       await axios.put(
         `${BASE_URL}/cards/reorder`,
-        {
-          items,
-          boardId,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
+        { items, boardId },
+        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
     } catch (error) {
       console.error("Failed to update card order:", error);
@@ -72,33 +59,29 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
     setOrderedData(data);
   }, [data]);
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     const { destination, source, type } = result;
 
-    if (!destination) {
-      return;
-    }
-
+    if (!destination) return;
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
-    ) {
+    )
       return;
-    }
 
-    // User moves a list
     if (type === "list") {
       const items = reorder(orderedData, source.index, destination.index).map(
-        (item, index) => ({ ...item, order: index })
+        (item, index) => ({
+          ...item,
+          order: index,
+        })
       );
-
       setOrderedData(items);
       executeUpdateListOrder(items, boardId);
     }
 
-    // User moves a card
     if (type === "card") {
-      let newOrderedData = [...orderedData];
+      const newOrderedData = [...orderedData];
       const sourceList = newOrderedData.find(
         (list) => list.id === source.droppableId
       );
@@ -106,16 +89,10 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
         (list) => list.id === destination.droppableId
       );
 
-      if (!sourceList || !destList) {
-        return;
-      }
+      if (!sourceList || !destList) return;
 
-      if (!sourceList.cards) {
-        sourceList.cards = [];
-      }
-      if (!destList.cards) {
-        destList.cards = [];
-      }
+      if (!sourceList.cards) sourceList.cards = [];
+      if (!destList.cards) destList.cards = [];
 
       if (source.droppableId === destination.droppableId) {
         const reorderedCards = reorder(
@@ -123,23 +100,17 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
           source.index,
           destination.index
         );
-        reorderedCards.forEach((card, idx) => {
-          card.order = idx;
-        });
+        reorderedCards.forEach((card, idx) => (card.order = idx));
         sourceList.cards = reorderedCards;
         setOrderedData(newOrderedData);
         executeUpdateCardOrder(boardId, reorderedCards);
       } else {
-        const [movedCard]: any = sourceList.cards.splice(source.index, 1);
+        const [movedCard] = sourceList.cards.splice(source.index, 1);
         movedCard.listId = destination.droppableId;
         destList.cards.splice(destination.index, 0, movedCard);
 
-        sourceList.cards.forEach((card, idx) => {
-          card.order = idx;
-        });
-        destList.cards.forEach((card, idx) => {
-          card.order = idx;
-        });
+        sourceList.cards.forEach((card, idx) => (card.order = idx));
+        destList.cards.forEach((card, idx) => (card.order = idx));
 
         setOrderedData(newOrderedData);
         executeUpdateCardOrder(boardId, destList.cards);
@@ -154,7 +125,7 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
           <ol
             {...provided.droppableProps}
             ref={provided.innerRef}
-            className="flex gap-x-3 h-full"
+            className="flex gap-x-3 h-full cursor-pointer"
           >
             {orderedData.map((list, index) => (
               <ListItem key={list.id} index={index} data={list} />

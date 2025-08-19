@@ -10,25 +10,31 @@ interface InfoProps {
   isPro: boolean;
 }
 
-export const Info = ({ isPro }: InfoProps) => {
+export const Info: React.FC<InfoProps> & { Skeleton: React.FC } = ({
+  isPro,
+}) => {
   const { organization, isLoaded } = useOrganization();
 
-  if (!isLoaded) {
+  if (!isLoaded || !organization) {
     return <Info.Skeleton />;
   }
 
   return (
     <div className="flex items-center gap-x-4">
       <div className="w-[60px] h-[60px] relative">
-        <Image
-          fill
-          src={organization?.imageUrl!}
-          alt="Organization"
-          className="rounded-md object-cover"
-        />
+        {organization.imageUrl ? (
+          <Image
+            fill
+            src={organization.imageUrl}
+            alt={organization.name ?? "Organization"}
+            className="rounded-md object-cover"
+          />
+        ) : (
+          <Skeleton className="w-full h-full rounded-md" />
+        )}
       </div>
       <div className="space-y-1">
-        <p className="font-semibold text-xl">{organization?.name}</p>
+        <p className="font-semibold text-xl">{organization.name}</p>
         <div className="flex items-center text-xs text-muted-foreground">
           <CreditCard className="h-3 w-3 mr-1" />
           {isPro ? "Pro" : "Free"}
@@ -42,12 +48,12 @@ Info.Skeleton = function SkeletonInfo() {
   return (
     <div className="flex items-center gap-x-4">
       <div className="w-[60px] h-[60px] relative">
-        <Skeleton className="w-full h-full absolute" />
+        <Skeleton className="w-full h-full absolute rounded-md" />
       </div>
       <div className="space-y-2">
         <Skeleton className="h-10 w-[200px]" />
-        <div className="flex items-center">
-          <Skeleton className="h-4 w-4 mr-2" />
+        <div className="flex items-center gap-x-2">
+          <Skeleton className="h-4 w-4" />
           <Skeleton className="h-4 w-[100px]" />
         </div>
       </div>

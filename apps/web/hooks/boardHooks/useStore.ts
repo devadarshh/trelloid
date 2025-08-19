@@ -5,6 +5,7 @@ interface LoadingStore {
   isLoading: boolean;
   setLoading: (loading: boolean) => void;
 }
+
 export const useLoadingStore = create<LoadingStore>((set) => ({
   isLoading: false,
   setLoading: (loading) => set({ isLoading: loading }),
@@ -23,6 +24,7 @@ interface Image {
     name: string;
   };
 }
+
 interface ImageStore {
   images: Image[];
   setImages: (imgs: Image[]) => void;
@@ -61,12 +63,13 @@ export const useCreateBoardStore = create<CreateBoardStore>((set) => ({
   setImageLinkHTML: (link) => set({ imageLinkHTML: link }),
 }));
 
-type Board = {
-  id?: string;
+interface Board {
+  id: string;
   title: string;
-  imageThumbUrl: string;
-  imageFullUrl: string;
-};
+  imageThumbUrl?: string;
+  imageFullUrl?: string;
+  organizationId: string;
+}
 
 interface BoardStore {
   boards: Board[];
@@ -75,7 +78,6 @@ interface BoardStore {
   setCurrentBoard: (board: Board) => void;
 }
 
-// using persist because if i directly go to the board ig page and refrehs then image is not storing
 export const useGetBoardStore = create<BoardStore>()(
   persist(
     (set) => ({
@@ -112,14 +114,6 @@ type RefreshBoardState = {
 
 export const useRefreshBoard = create<RefreshBoardState>((set) => ({
   shouldRefresh: false,
-  triggerRefreshBoards: () =>
-    set(() => {
-      console.log("🔥 Zustand: triggerRefreshBoards");
-      return { shouldRefresh: true };
-    }),
-  resetRefresh: () =>
-    set(() => {
-      console.log("🧹 Zustand: resetRefresh");
-      return { shouldRefresh: false };
-    }),
+  triggerRefreshBoards: () => set({ shouldRefresh: true }),
+  resetRefresh: () => set({ shouldRefresh: false }),
 }));

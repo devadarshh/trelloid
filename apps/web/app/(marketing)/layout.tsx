@@ -1,11 +1,16 @@
+import { ReactNode } from "react";
 import { Footer } from "./_components/Footer";
 import { NavBar } from "./_components/NavBar";
 
-const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
+interface MarketingLayoutProps {
+  children: ReactNode;
+}
+
+const MarketingLayout = ({ children }: MarketingLayoutProps) => {
   return (
-    <div className="h-full bg-slate-100">
+    <div className="flex min-h-screen flex-col bg-slate-100">
       <NavBar />
-      <main className="pt-40 pb-20 bg-slate-100 min-h-screen">{children}</main>
+      <main className="flex-1 pt-40 pb-20 bg-slate-100">{children}</main>
       <Footer />
     </div>
   );

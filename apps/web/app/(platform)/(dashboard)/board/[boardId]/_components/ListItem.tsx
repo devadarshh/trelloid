@@ -1,9 +1,11 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import CardForm from "./CardForm";
 import CardItem from "./CardItem";
 import ListHeader from "./ListHeader";
 import { ListWithCards } from "types";
-import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 
 interface ListItemProps {
   data: ListWithCards;
@@ -21,9 +23,12 @@ export const ListItem = ({ data, index }: ListItemProps) => {
         >
           <div
             {...provided.dragHandleProps}
-            className="w-full rounded-md bg-[#f1f2f4] shadow-md pb-2"
+            className="w-full rounded-md bg-[#f1f2f4] shadow-md pb-2 cursor-pointer"
           >
+            {/* List header */}
             <ListHeader data={data} />
+
+            {/* Cards droppable area */}
             <Droppable droppableId={data.id} type="card">
               {(provided) => (
                 <ol
@@ -35,12 +40,14 @@ export const ListItem = ({ data, index }: ListItemProps) => {
                   )}
                 >
                   {data.cards.map((card, index) => (
-                    <CardItem index={index} key={card.id} data={card} />
+                    <CardItem key={card.id} index={index} data={card} />
                   ))}
                   {provided.placeholder}
                 </ol>
               )}
             </Droppable>
+
+            {/* Add card form */}
             <CardForm listId={data.id} />
           </div>
         </li>

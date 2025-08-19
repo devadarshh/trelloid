@@ -1,12 +1,12 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useLocalStorage } from "usehooks-ts";
 import { useOrganization, useOrganizationList } from "@clerk/nextjs";
 
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion } from "@/components/ui/accordion";
 
@@ -17,38 +17,47 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
-  const [expanded, setExpanded] = useLocalStorage<Record<string, any>>(
+  const [expanded, setExpanded] = useLocalStorage<Record<string, boolean>>(
     storageKey,
     {}
   );
-
   const { organization: activeOrganization, isLoaded: isLoadedOrg } =
     useOrganization();
   const { userMemberships, isLoaded: isLoadedOrgList } = useOrganizationList({
-    userMemberships: {
-      infinite: true,
-    },
+    userMemberships: { infinite: true },
   });
 
-  const defaultAccordionValue: string[] = Object.keys(expanded).reduce(
-    (acc: string[], key: string) => {
-      if (expanded[key]) {
-        acc.push(key);
-      }
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
 
-      return acc;
-    },
-    []
+  useEffect(() => {
+    const membershipsData = userMemberships?.data;
+    if (!isLoadedOrgList || !membershipsData) return;
+
+    // Map to Organization[] safely
+    const orgs: Organization[] = membershipsData.map(({ organization }) => ({
+      id: organization.id,
+      slug: organization.slug ?? "",
+      imageUrl: organization.imageUrl,
+      name: organization.name,
+    }));
+
+    setOrganizations((prev) => {
+      const same =
+        prev.length === orgs.length &&
+        prev.every((o, i) => o.id === orgs[i].id);
+      return same ? prev : orgs;
+    });
+  }, [isLoadedOrgList, userMemberships?.data]);
+
+  const defaultAccordionValue: string[] = Object.keys(expanded).filter(
+    (key) => expanded[key]
   );
 
   const onExpand = (id: string) => {
-    setExpanded((curr) => ({
-      ...curr,
-      [id]: !expanded[id],
-    }));
+    setExpanded((curr) => ({ ...curr, [id]: !curr[id] }));
   };
 
-  if (!isLoadedOrg || !isLoadedOrgList || userMemberships.isLoading) {
+  if (!isLoadedOrg || !isLoadedOrgList) {
     return (
       <>
         <div className="flex items-center justify-between mb-2">
@@ -73,24 +82,25 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
           type="button"
           size="icon"
           variant="ghost"
-          className="ml-auto"
+          className="ml-auto cursor-pointer"
         >
           <Link href="/select-org">
             <Plus className="h-4 w-4" />
           </Link>
         </Button>
       </div>
+
       <Accordion
         type="multiple"
         defaultValue={defaultAccordionValue}
         className="space-y-2"
       >
-        {userMemberships.data.map(({ organization }) => (
+        {organizations.map((org) => (
           <NavItem
-            key={organization.id}
-            isActive={activeOrganization?.id === organization.id}
-            isExpanded={expanded[organization.id]}
-            organization={organization as Organization}
+            key={org.id}
+            isActive={activeOrganization?.id === org.id}
+            isExpanded={!!expanded[org.id]}
+            organization={org}
             onExpand={onExpand}
           />
         ))}

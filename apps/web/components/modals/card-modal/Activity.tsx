@@ -1,10 +1,21 @@
+import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ActivityItem } from "components/ActivityItem";
 import { ActivityIcon } from "lucide-react";
-// interface ActivityProps {
-//   items: AuditLog[];
-// }
-export const Activity = ({ items }: any) => {
+
+interface ActivityProps {
+  items: {
+    id: string;
+    userName: string;
+    userImage?: string;
+    createdAt: string;
+    [key: string]: any;
+  }[];
+}
+
+export const Activity: React.FC<ActivityProps> & { Skeleton: React.FC } = ({
+  items,
+}) => {
   return (
     <div className="flex items-start gap-x-3 w-full">
       <ActivityIcon className="h-5 w-5 mt-0.5 text-neutral-700" />

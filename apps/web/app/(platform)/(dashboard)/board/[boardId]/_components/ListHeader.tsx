@@ -1,3 +1,5 @@
+"use client";
+
 import React, { ElementRef, useRef, useState } from "react";
 import ListOptions from "./ListOptions";
 import { Input } from "@/components/ui/input";
@@ -6,7 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { useLoadingStore } from "hooks/boardHooks/useStore";
 import axios from "axios";
-import { useCreateListStore, useRefreshList } from "hooks/listHooks/useStore";
+import { useCreateListStore } from "hooks/listHooks/useStore";
 
 interface ListHeaderProps {
   data: List;
@@ -18,14 +20,13 @@ const ListHeader = ({ data }: ListHeaderProps) => {
 
   const { getToken } = useAuth();
   const { setLoading } = useLoadingStore();
-  const { triggerRefreshLists } = useRefreshList();
-  const { lists, setLists } = useCreateListStore();
+  const { setLists } = useCreateListStore();
 
-  const formRef = useRef<ElementRef<"form">>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<ElementRef<"input">>(null);
 
   const enableEditing = () => {
-    if (isEditing) return; // avoid double triggers
+    if (isEditing) return;
     setIsEditing(true);
     setTimeout(() => {
       inputRef.current?.focus();
@@ -68,11 +69,9 @@ const ListHeader = ({ data }: ListHeaderProps) => {
         )
       );
 
-      // triggerRefreshLists(true);
       toast.success("List renamed successfully");
-    } catch (error: any) {
+    } catch {
       toast.error("Error renaming list");
-      console.error(error);
     } finally {
       setLoading(false);
       disableEditing();
@@ -94,7 +93,7 @@ const ListHeader = ({ data }: ListHeaderProps) => {
             onBlur={onBlur}
             id="title"
             placeholder="Enter list title..."
-            className="text-sm px-[7px] py-1 h-7 font-medium border-transparent focus:border-input bg-transparent focus:bg-white truncate"
+            className="text-sm px-[7px] py-1 h-7 font-medium border-transparent focus:border-input bg-transparent focus:bg-white truncate cursor-pointer"
           />
         </form>
       ) : (

@@ -8,15 +8,25 @@ import { useRefreshCards } from "hooks/cardHooks/useStore";
 import { useRefreshList } from "hooks/listHooks/useStore";
 import { AlignLeft } from "lucide-react";
 import { ElementRef, useRef, useState } from "react";
+import { descriptionSchema } from "schema/validationSchema";
 import { toast } from "sonner";
 
-const Description = ({ data }: any) => {
+interface DescriptionProps {
+  data: {
+    id: string;
+    description?: string;
+    [key: string]: any;
+  };
+}
+
+const Description = ({ data }: DescriptionProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const formRef = useRef<ElementRef<"form">>(null);
-  const textareaRef = useRef<ElementRef<"textarea">>(null);
   const [updatedDescription, setUpdatedDescription] = useState(
     data.description || ""
   );
+  const formRef = useRef<ElementRef<"form">>(null);
+  const textareaRef = useRef<ElementRef<"textarea">>(null);
+
   const { setLoading } = useLoadingStore();
   const { getToken } = useAuth();
   const { triggerRefreshBoards } = useRefreshBoard();
@@ -30,12 +40,11 @@ const Description = ({ data }: any) => {
     });
   };
 
-  const disableEditing = () => {
-    setIsEditing(false);
-  };
+  const disableEditing = () => setIsEditing(false);
 
   const handleUpdateCard = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (updatedDescription === data.description) {
       toast("No changes detected");
       disableEditing();
@@ -43,6 +52,8 @@ const Description = ({ data }: any) => {
     }
 
     try {
+      await descriptionSchema.validate({ description: updatedDescription });
+
       setLoading(true);
       const token = await getToken();
       if (!token) {
@@ -50,30 +61,28 @@ const Description = ({ data }: any) => {
         return;
       }
 
-      const response = await axios.put(
+      await axios.put(
         "http://localhost:5000/api/v1/update-card",
-        { cardId: data?.id, description: updatedDescription },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
+        { cardId: data.id, description: updatedDescription },
+        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
 
       toast.success("Description updated successfully");
       data.description = updatedDescription;
-      triggerRefreshLists(true);
-      triggerRefreshBoards(true);
-      triggerRefreshCards(true);
 
-      console.log("Description Updated successfully", response.data);
-    } catch (error: any) {
-      toast.error("Error updating description");
-      console.error(error.message || error);
+      triggerRefreshLists();
+      triggerRefreshBoards();
+      triggerRefreshCards();
+    } catch (err: any) {
+      if (err.name === "ValidationError") {
+        toast.error(err.message);
+      } else {
+        toast.error("Error updating description");
+      }
     } finally {
       setLoading(false);
+      disableEditing();
     }
-
-    disableEditing();
   };
 
   return (
@@ -107,9 +116,9 @@ const Description = ({ data }: any) => {
           <div
             onClick={enableEditing}
             role="button"
-            className="min-h-[78px] bg-neutral-200 text-sm font-medium py-3 px-3.5 rounded-md"
+            className="min-h-[78px] bg-neutral-200 text-sm font-medium py-3 px-3.5 rounded-md cursor-pointer hover:bg-neutral-300 transition-all"
           >
-            {data?.description || "Add a description..."}
+            {data.description || "Add a description..."}
           </div>
         )}
       </div>

@@ -1,4 +1,6 @@
-import React, { ElementRef, useRef, useState } from "react";
+"use client";
+
+import React, { ElementRef, useRef, useState, useEffect } from "react";
 import { ListWrapper } from "./ListWrapper";
 import { Plus, X } from "lucide-react";
 import { useEventListener, useOnClickOutside } from "usehooks-ts";
@@ -9,11 +11,13 @@ import { useBoardIdStore, useLoadingStore } from "hooks/boardHooks/useStore";
 import { useCreateList, useRefreshList } from "hooks/listHooks/useStore";
 import axios from "axios";
 import { toast } from "sonner";
+import { ListFormschema } from "schema/validationSchema";
 
 export const ListForm = () => {
-  const formRef = useRef<ElementRef<"form">>(null);
+  const formRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<ElementRef<"input">>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState("");
 
   const { getToken } = useAuth();
   const { BoardId } = useBoardIdStore();
@@ -23,78 +27,91 @@ export const ListForm = () => {
 
   const enableEditing = () => {
     setIsEditing(true);
-    setTimeout(() => {
-      inputRef.current?.focus();
-    });
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
+
   const disableEditing = () => {
     setIsEditing(false);
+    setError("");
+    setTitle("");
+  };
+
+  const validateTitle = async (value: string) => {
+    try {
+      await ListFormschema.validate({ title: value });
+      setError("");
+      return true;
+    } catch (err: any) {
+      setError(err.message);
+      return false;
+    }
+  };
+
+  const handleCreateList = async () => {
+    const isValid = await validateTitle(title);
+    if (!isValid) return;
+
+    try {
+      setLoading(true);
+      const token = await getToken();
+      await axios.post(
+        "http://localhost:5000/api/v1/create-list",
+        { boardId: BoardId, title },
+        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+      );
+      triggerRefreshLists(true);
+      toast.success(`List "${title}" created`);
+      disableEditing();
+    } catch {
+      toast.error("Error creating list");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Escape") {
-      disableEditing();
-    }
+    if (e.key === "Escape") disableEditing();
   };
 
   useEventListener("keydown", onKeyDown);
   useOnClickOutside(formRef, disableEditing);
 
-  const handleCreateList = async () => {
-    try {
-      setLoading(true);
-      const token = await getToken();
-      const response = await axios.post(
-        "http://localhost:5000/api/v1/create-list",
-        {
-          boardId: BoardId,
-          title,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
-      );
-      triggerRefreshLists(true);
-      toast.success(`List ${title} created`);
-      disableEditing();
-      setTitle("");
-    } catch (error: any) {
-      toast.error("Error Creating List");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    if (title) validateTitle(title);
+  }, [title]);
+
   if (isEditing) {
     return (
       <ListWrapper>
         <div
           ref={formRef}
-          className={`w-full p-3 rounded-md bg-white space-y-4 shadow-md transition-opacity ${
+          className={`w-full p-3 rounded-md bg-white space-y-2 shadow-md transition-opacity ${
             isLoading ? "opacity-50 pointer-events-none" : "opacity-100"
           }`}
         >
           <Input
             ref={inputRef}
+            value={title}
             onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleCreateList();
-              }
-            }}
-            id="title"
-            className="text-sm px-2 py-1 h-7 font-medium border-transparent hover:border-input focus:border-input transition"
             placeholder="Enter list title..."
+            className="text-sm px-2 py-1 h-8 font-medium border border-gray-300 rounded focus:border-indigo-500 transition cursor-pointer"
           />
-          <input hidden name="boardId" readOnly />
-          <div className="flex items-center gap-x-1">
-            <Button variant={"primary"} onClick={handleCreateList}>
+          {error && <p className="text-xs text-red-500">{error}</p>}
+          <div className="flex items-center gap-x-2">
+            <Button
+              variant="primary"
+              onClick={handleCreateList}
+              disabled={isLoading || !!error}
+              className="cursor-pointer"
+            >
               Add list
             </Button>
-            <Button onClick={disableEditing} size="sm" variant="ghost">
+            <Button
+              onClick={disableEditing}
+              size="sm"
+              variant="ghost"
+              className="cursor-pointer"
+            >
               <X className="h-5 w-5" />
             </Button>
           </div>
@@ -102,6 +119,7 @@ export const ListForm = () => {
       </ListWrapper>
     );
   }
+
   return (
     <ListWrapper>
       <Button

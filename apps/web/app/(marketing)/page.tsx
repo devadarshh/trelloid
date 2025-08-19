@@ -8,57 +8,63 @@ import { Button } from "@/components/ui/button";
 
 const headingFont = localFont({
   src: "../../public/fonts/font.woff2",
+  display: "swap",
 });
 
 const textFont = Poppins({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
 });
 
 const MarketingPage = () => {
   return (
-    <div className="flex items-center justify-center flex-col">
-      <div
+    <main className="flex flex-col items-center justify-center px-4 py-8">
+      <section
         className={cn(
-          "flex items-center justify-center flex-col",
+          "flex flex-col items-center justify-center text-center",
           headingFont.className
         )}
       >
         <div
-          className="mb-4 flex items-center border shadow-sm p-4 bg-amber-100 text-amber-700 rounded-full uppercase"
+          className="mb-4 flex items-center rounded-full border bg-amber-100 p-4 text-amber-700 shadow-sm uppercase"
           data-testid="main_award"
+          aria-label="Top award badge"
         >
-          <Medal className="h-6 w-6 mr-2" />
-          No 1 task managment
+          <Medal className="mr-2 h-6 w-6" aria-hidden="true" />
+          No. 1 Task Management
         </div>
-        <h1
-          className="text-3xl md:text-6xl text-center text-neutral-800 mb-6"
-          data-testid="main_title"
-        >
-          Trelloid helps team move
+
+        <h1 className="mb-6 text-3xl text-neutral-800 md:text-6xl">
+          Trelloid helps teams move
         </h1>
-        <div
-          className="text-3xl md:text-6xl bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white px-4 p-2 rounded-md pb-4 w-fit"
+
+        <p
+          className="w-fit rounded-md bg-gradient-to-r from-fuchsia-600 to-pink-600 px-4 py-2 text-3xl text-white md:text-6xl"
           data-testid="main_subtitle"
         >
           work forward.
-        </div>
-      </div>
-      <div
+        </p>
+      </section>
+
+      <p
         className={cn(
-          "text-sm md:text-xl text-neutral-400 mt-4 max-w-xs md:max-w-2xl text-center mx-auto",
+          "mx-auto mt-4 max-w-xs text-center text-sm text-neutral-400 md:max-w-2xl md:text-xl",
           textFont.className
         )}
         data-testid="main_description"
       >
         Collaborate, manage projects, and reach new productivity peaks. From
-        high rises to the home office, the way your team works is unique -
+        high-rises to the home office, the way your team works is unique —
         accomplish it all with Trelloid.
-      </div>
+      </p>
+
       <Button className="mt-6" size="lg" asChild data-testid="main_button">
-        <Link href="/sign-up">Get Trelloid for free</Link>
+        <Link href="/sign-up" aria-label="Get Trelloid for free">
+          Get Trelloid for free
+        </Link>
       </Button>
-    </div>
+    </main>
   );
 };
 

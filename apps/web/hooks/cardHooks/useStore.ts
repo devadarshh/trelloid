@@ -27,7 +27,7 @@ export const useCreateCard = create<CreateCardStore>((set) => ({
 
 interface RefreshCard {
   refreshCards: boolean;
-  triggerRefreshCards: (newRefresh: boolean) => void;
+  triggerRefreshCards: () => void;
 }
 
 export const useRefreshCards = create<RefreshCard>((set) => ({
@@ -46,9 +46,6 @@ type CardModalStore = {
 export const useCardModal = create<CardModalStore>((set) => ({
   id: undefined,
   isOpen: false,
-  onOpen: (id: string) => {
-    console.log("Setting modal open with id:", id);
-    set({ isOpen: true, id });
-  },
+  onOpen: (id: string) => set({ isOpen: true, id }),
   onClose: () => set({ isOpen: false, id: undefined }),
 }));
