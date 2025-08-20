@@ -1,57 +1,24 @@
-import { Request, Response } from "express";
 import { unsplash } from "../utils/unsplash";
-import { z } from "zod";
+import { Request, Response } from "express";
 
-// Zod schema for query parameters (optional if you want dynamic collection or count)
-const getImagesQuerySchema = z.object({
-  collectionIds: z
-    .string()
-    .optional()
-    .transform((val) => val?.split(",") || ["317099"]),
-  count: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val, 10) : 9)),
-});
-
-export const getUnsplashImages = async (req: Request, res: Response) => {
+export const getUnsplashImages = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   try {
-    const { collectionIds, count } = getImagesQuerySchema.parse(req.query);
-
+    const collectionIds = ["317099"];
+    const count = 9;
     const response = await unsplash.photos.getRandom({
       collectionIds,
       count,
     });
-
     if (response.type === "error") {
-      console.error("[UNSPLASH_API_ERROR]", response.errors);
-      return res.status(502).json({
-        success: false,
-        message: "Failed to fetch images from Unsplash",
-        errors: response.errors,
-      });
+      console.error("Unsplash API error:", response.errors);
+      return res.status(500).json({ error: response.errors });
     }
-
-    return res.status(200).json({
-      success: true,
-      message: "Images fetched successfully",
-      data: response.response,
-    });
-  } catch (error: any) {
-    console.error("[UNSPLASH_FETCH_ERROR]", error);
-
-    if (error?.name === "ZodError") {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid query parameters",
-        errors: error.errors,
-      });
-    }
-
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error?.message || "Unknown error",
-    });
+    return res.json(response.response);
+  } catch (error) {
+    console.error("Error fetching Unsplash images:", error);
+    res.status(500).json({ error: "Failed to fetch images" });
   }
 };

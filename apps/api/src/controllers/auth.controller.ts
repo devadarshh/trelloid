@@ -48,14 +48,6 @@ export const syncUserInDB = async (
 
       const imageUrl = data.image_url || null;
 
-      console.log("[CLERK_USER_CREATED]", {
-        clerkId,
-        firstName,
-        lastName,
-        email,
-        imageUrl,
-      });
-
       await prisma.user.create({
         data: {
           clerkId,
