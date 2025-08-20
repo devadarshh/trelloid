@@ -11,6 +11,7 @@ import listRoutes from "./routers/list.route";
 import cardRoutes from "./routers/card.route";
 import activityRoutes from "./routers/activity.route";
 import stripeRoutes from "./routers/stripe.route";
+import orgLimitRoutes from "./routers/orgLimits.route";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use("/", orgRoutes);
 app.use("/api/v1", boardRoutes);
 app.use("/api/v1", listRoutes);
 app.use("/api/v1", cardRoutes);
+app.use("/api/v1", orgLimitRoutes);
 app.use("/api", stripeRoutes);
 app.use("/api/v1/audit-logs", activityRoutes);
 app.use("/api", unsplashRoutes);

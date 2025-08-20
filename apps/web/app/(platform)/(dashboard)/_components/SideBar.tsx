@@ -29,25 +29,23 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
 
   const [organizations, setOrganizations] = useState<Organization[]>([]);
 
-  useEffect(() => {
-    const membershipsData = userMemberships?.data;
-    if (!isLoadedOrgList || !membershipsData) return;
+ useEffect(() => {
+  if (!isLoadedOrgList || !userMemberships?.data) return;
 
-    // Map to Organization[] safely
-    const orgs: Organization[] = membershipsData.map(({ organization }) => ({
-      id: organization.id,
-      slug: organization.slug ?? "",
-      imageUrl: organization.imageUrl,
-      name: organization.name,
-    }));
+  const orgs: Organization[] = userMemberships.data.map(({ organization }) => ({
+    id: organization.id,
+    slug: organization.slug ?? "",
+    imageUrl: organization.imageUrl,
+    name: organization.name,
+  }));
 
-    setOrganizations((prev) => {
-      const same =
-        prev.length === orgs.length &&
-        prev.every((o, i) => o.id === orgs[i].id);
-      return same ? prev : orgs;
-    });
-  }, [isLoadedOrgList, userMemberships?.data]);
+  setOrganizations((prev) => {
+    const same =
+      prev.length === orgs.length &&
+      prev.every((o, i) => o.id === orgs[i].id);
+    return same ? prev : orgs;
+  });
+}, [isLoadedOrgList, userMemberships?.data]);
 
   const defaultAccordionValue: string[] = Object.keys(expanded).filter(
     (key) => expanded[key]

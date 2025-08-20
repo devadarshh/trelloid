@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { defaultImages } from "constants/images";
 
 import {
+  useBoardLimitStore,
   useCreateBoardStore,
   useImageStore,
   useLoadingStore,
@@ -52,6 +53,7 @@ const OrgNavBar = () => {
   const { triggerRefreshBoards } = useRefreshBoard();
   const closeRef = useRef<ElementRef<"button">>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { setRemaining } = useBoardLimitStore();
 
   const {
     title,
@@ -66,26 +68,47 @@ const OrgNavBar = () => {
     setImageLinkHTML,
   } = useCreateBoardStore();
 
+  // Fetch remaining boards from backend
+  const fetchLimit = async () => {
+    if (!orgId) return;
+    try {
+      const token = await getToken();
+      const res = await axios.get(
+        `http://localhost:5000/api/v1/count?orgId=${orgId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log("Remaining Board fro mthe bacekd", res.data.remaining);
+      setRemaining(res.data.remaining);
+    } catch (err) {
+      console.error("Error fetching board limit:", err);
+      setRemaining(0);
+    }
+  };
+
+  useEffect(() => {
+    fetchLimit();
+  }, [orgId]);
+
   useEffect(() => {
     let mounted = true;
     const fetchImages = async () => {
-      setLoading(true);
       try {
+        setLoading(true);
         const response = await axios.get("http://localhost:5000/api/images");
-        if (
-          mounted &&
-          Array.isArray(response.data) &&
-          response.data.length > 0
-        ) {
-          setImages(response.data);
-        } else {
-          setImages(defaultImages);
-        }
-      } catch (error: any) {
-        console.error(error.message || "Error fetching images");
-        setImages(defaultImages);
+        const newImages: UnsplashImage[] = Array.isArray(response.data)
+          ? response.data
+          : defaultImages;
+
+        const existingIds = new Set(images.map((img) => img.id));
+        const uniqueImages = newImages.filter(
+          (img) => !existingIds.has(img.id)
+        );
+
+        if (mounted) setImages(uniqueImages.length ? uniqueImages : newImages); // fallback if all duplicates
+      } catch {
+        if (mounted) setImages(defaultImages);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
     fetchImages();
@@ -125,8 +148,8 @@ const OrgNavBar = () => {
       });
 
       triggerRefreshBoards();
+      await fetchLimit();
 
-      // reset store
       setTitle("");
       setImageId("");
       setImageThumbUrl("");

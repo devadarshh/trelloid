@@ -76,6 +76,7 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
           order: index,
         })
       );
+      // map is for reordering each list based on order
       setOrderedData(items);
       executeUpdateListOrder(items, boardId);
     }
@@ -105,7 +106,7 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
         setOrderedData(newOrderedData);
         executeUpdateCardOrder(boardId, reorderedCards);
       } else {
-        const [movedCard] = sourceList.cards.splice(source.index, 1);
+        const [movedCard]: any = sourceList.cards.splice(source.index, 1);
         movedCard.listId = destination.droppableId;
         destList.cards.splice(destination.index, 0, movedCard);
 

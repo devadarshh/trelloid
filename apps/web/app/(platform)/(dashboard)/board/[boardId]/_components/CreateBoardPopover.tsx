@@ -1,33 +1,37 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
+import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
+import { Check, Loader2, X } from "lucide-react";
 import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverClose,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+import {
+  useBoardLimitStore,
   useCreateBoardStore,
   useImageStore,
   useLoadingStore,
   useRefreshBoard,
 } from "hooks/boardHooks/useStore";
-import Image from "next/image";
-import Link from "next/link";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
-import { useAuth } from "@clerk/nextjs";
-import { cn } from "@/lib/utils";
-import { Check, Loader2, X } from "lucide-react";
-import {
-  PopoverClose,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
 import { defaultImages } from "constants/images";
 import {
   createBoardSchema,
   CreateBoardFormData,
 } from "schema/validationSchema";
+import { useProModal } from "hooks/use-pro-modal";
 
 type UnsplashImage = {
   id: string;
@@ -37,14 +41,15 @@ type UnsplashImage = {
 };
 
 const CreateBoardPopover = () => {
-  const { isLoading, setLoading } = useLoadingStore();
-  const { images, setImages } = useImageStore();
   const { orgId } = useOrganizationIdStore();
   const { getToken } = useAuth();
   const { triggerRefreshBoards } = useRefreshBoard();
+  const { isLoading, setLoading } = useLoadingStore();
+  const { images, setImages } = useImageStore();
   const closeRef = useRef<HTMLButtonElement>(null);
-
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { setRemaining, remaining } = useBoardLimitStore();
+  const proModal = useProModal();
 
   const {
     title,
@@ -59,27 +64,39 @@ const CreateBoardPopover = () => {
     setImageLinkHTML,
   } = useCreateBoardStore();
 
-  // Fetch board images
+  const fetchLimit = async () => {
+    if (!orgId) return;
+    try {
+      const token = await getToken();
+      const res = await axios.get(
+        `http://localhost:5000/api/v1/count?orgId=${orgId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setRemaining(res.data.remaining);
+    } catch (err) {
+      console.error("Error fetching board limit:", err);
+      setRemaining(0);
+    }
+  };
+
+  useEffect(() => {
+    fetchLimit();
+  }, [orgId]);
+
   useEffect(() => {
     let mounted = true;
-
     const fetchImages = async () => {
       try {
         setLoading(true);
         const response = await axios.get("http://localhost:5000/api/images");
-
-        if (mounted && response.data) {
-          setImages(response.data);
-        } else {
-          setImages(defaultImages);
-        }
+        if (mounted && Array.isArray(response.data)) setImages(response.data);
+        else setImages(defaultImages);
       } catch {
         setImages(defaultImages);
       } finally {
         setLoading(false);
       }
     };
-
     fetchImages();
     return () => {
       mounted = false;
@@ -89,6 +106,12 @@ const CreateBoardPopover = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+
+    if (remaining === 0) {
+      toast.error("You have reached your free board limit. Upgrade to Pro!");
+      proModal.onOpen();
+      return;
+    }
 
     const formData: CreateBoardFormData = {
       orgId,
@@ -101,7 +124,6 @@ const CreateBoardPopover = () => {
 
     try {
       await createBoardSchema.validate(formData, { abortEarly: false });
-
       setLoading(true);
       const token = await getToken();
 
@@ -111,7 +133,9 @@ const CreateBoardPopover = () => {
       });
 
       triggerRefreshBoards();
+      await fetchLimit();
 
+      // Reset form
       setTitle("");
       setImageId("");
       setImageThumbUrl("");
@@ -135,12 +159,11 @@ const CreateBoardPopover = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button
-          type="button"
-          className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col gap-y-1 items-center justify-center hover:opacity-75 transition cursor-pointer"
-        >
+        <button className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col items-center justify-center hover:opacity-75 transition cursor-pointer">
           <p className="text-sm">Create new board</p>
-          <span className="text-xs">5 remaining</span>
+          <span className="text-xs">
+            {remaining !== undefined ? `${remaining} remaining` : "Loading..."}
+          </span>
         </button>
       </PopoverTrigger>
 
@@ -154,6 +177,7 @@ const CreateBoardPopover = () => {
         <div className="text-sm font-medium text-center text-neutral-600 pb-4">
           Create board
         </div>
+
         <PopoverClose ref={closeRef} asChild>
           <Button
             className="h-auto w-auto p-2 absolute top-2 right-2 text-neutral-600 cursor-pointer"
@@ -165,7 +189,7 @@ const CreateBoardPopover = () => {
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-4">
-            {/* Image Selector */}
+            {/* Images */}
             <div className="relative">
               {isLoading ? (
                 <div className="flex items-center justify-center p-10">
@@ -173,48 +197,48 @@ const CreateBoardPopover = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-3 gap-2 mb-2">
-                  {images.map((image: UnsplashImage) => (
-                    <div
-                      key={image.id}
-                      className={cn(
-                        "cursor-pointer relative aspect-video group hover:opacity-75 transition bg-muted rounded-sm overflow-hidden",
-                        imageId === image.id && "ring-2 ring-sky-500"
-                      )}
-                      onClick={() => {
-                        setImageId(image.id);
-                        setImageThumbUrl(image.urls.thumb);
-                        setImageFullUrl(image.urls.full ?? "");
-                        setImageLinkHTML(image.links.html);
-                      }}
-                    >
-                      <Image
-                        src={image.urls.thumb}
-                        alt="Unsplash image"
-                        className="object-cover"
-                        fill
-                      />
-                      {imageId === image.id && (
-                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                          <Check className="h-5 w-5 text-white" />
-                        </div>
-                      )}
-                      <Link
-                        href={image.links.html}
-                        target="_blank"
-                        className="opacity-0 group-hover:opacity-100 absolute bottom-0 w-full text-[10px] truncate text-white hover:underline p-1 bg-black/50"
+                  {(Array.isArray(images) ? images : []).map(
+                    (image: UnsplashImage) => (
+                      <div
+                        key={image.id}
+                        className={cn(
+                          "cursor-pointer relative aspect-video group hover:opacity-75 transition bg-muted rounded-sm overflow-hidden",
+                          imageId === image.id ? "ring-2 ring-sky-500" : ""
+                        )}
+                        onClick={() => {
+                          setImageId(image.id);
+                          setImageThumbUrl(image.urls.thumb);
+                          setImageFullUrl(image.urls.full ?? "");
+                          setImageLinkHTML(image.links.html);
+                        }}
                       >
-                        {image.user.name}
-                      </Link>
-                    </div>
-                  ))}
+                        <Image
+                          src={image.urls.thumb}
+                          alt={`Unsplash by ${image.user.name}`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, 33vw"
+                        />
+                        {imageId === image.id && (
+                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                            <Check className="h-5 w-5 text-white" />
+                          </div>
+                        )}
+                        <Link
+                          href={image.links.html}
+                          target="_blank"
+                          className="opacity-0 group-hover:opacity-100 absolute bottom-0 w-full text-[10px] truncate text-white hover:underline p-1 bg-black/50 cursor-pointer"
+                        >
+                          {image.user.name}
+                        </Link>
+                      </div>
+                    )
+                  )}
                 </div>
-              )}
-              {errors.imageId && (
-                <p className="text-red-500 text-xs">{errors.imageId}</p>
               )}
             </div>
 
-            {/* Title input */}
+            {/* Board title */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-neutral-700">
                 Board Title
@@ -232,16 +256,26 @@ const CreateBoardPopover = () => {
               )}
             </div>
 
-            {/* Submit button */}
             <Button
               variant="primary"
               size="sm"
-              type="submit"
-              disabled={isLoading}
+              type="button" //
               className="w-full cursor-pointer"
+              onClick={(e) => {
+                if (remaining === 0) {
+                  toast.error(
+                    "You have reached your free board limit. Upgrade to Pro!"
+                  );
+                  proModal.onOpen(); // open modal
+                  return;
+                }
+                onSubmit(e);
+              }}
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
+              ) : remaining === 0 ? (
+                "Upgrade to Pro"
               ) : (
                 "Create"
               )}

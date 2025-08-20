@@ -2,9 +2,13 @@ import { Request, Response } from "express";
 import prisma from "../prisma/client";
 import { createAuditLog } from "../utils/activityServices";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
+import {
+  decreaseAvailableCount,
+  incrementAvailableCount,
+  hasAvailableCount,
+} from "../controllers/orgLimits.controller";
 import { z } from "zod";
 
-// Zod schemas
 const createBoardSchema = z.object({
   orgId: z.string().min(1, "Organization ID is required"),
   title: z.string().min(1, "Title is required"),
@@ -27,7 +31,6 @@ const getBoardsQuerySchema = z.object({
   orgId: z.string().min(1, "Organization ID is required"),
 });
 
-// CREATE BOARD
 export const handleCreateBoard = async (
   req: Request,
   res: Response
@@ -49,7 +52,13 @@ export const handleCreateBoard = async (
       imageLinkHTML,
     } = parseResult.data;
     const { userId } = req.auth;
-
+    const canCreate = await hasAvailableCount(orgId);
+    if (!canCreate) {
+      return res.status(403).json({
+        success: false,
+        message: "You have reached the maximum number of free boards.",
+      });
+    }
     const orgExists = await prisma.organization.findUnique({
       where: { organizationId: orgId },
     });
@@ -77,7 +86,7 @@ export const handleCreateBoard = async (
         organization: { connect: { organizationId: orgId } },
       },
     });
-
+    await decreaseAvailableCount(orgId);
     await createAuditLog({
       entityTitle: newBoard.title,
       entityId: newBoard.id,
@@ -156,7 +165,7 @@ export const handleDeleteBoard = async (
         .json({ success: false, message: "Board not found" });
 
     const deletedBoard = await prisma.board.delete({ where: { id: boardId } });
-
+    await incrementAvailableCount(boardExists.organization.organizationId);
     await createAuditLog({
       entityTitle: deletedBoard.title,
       entityId: deletedBoard.id,

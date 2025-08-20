@@ -31,7 +31,7 @@ interface ImageStore {
 }
 
 export const useImageStore = create<ImageStore>((set) => ({
-  images: [],
+  images: [], // 👈 start with defaults
   setImages: (imgs) => set({ images: imgs }),
 }));
 
@@ -105,7 +105,15 @@ export const useBoardIdStore = create<BoardId>((set) => ({
   BoardId: "",
   setBoardId: (newBoardId) => set({ BoardId: newBoardId }),
 }));
+interface BoardLimitState {
+  remaining: number;
+  setRemaining: (value: number) => void;
+}
 
+export const useBoardLimitStore = create<BoardLimitState>((set) => ({
+  remaining: 0,
+  setRemaining: (value) => set({ remaining: value }),
+}));
 type RefreshBoardState = {
   shouldRefresh: boolean;
   triggerRefreshBoards: () => void;

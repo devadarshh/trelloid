@@ -17,7 +17,6 @@ const BoardIdLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="relative min-h-screen h-full overflow-y-auto">
-      {/* Background fixed */}
       <div
         className="fixed inset-0 bg-no-repeat bg-cover bg-center -z-10"
         style={{ backgroundImage: `url(${currentBoard?.imageFullUrl || ""})` }}

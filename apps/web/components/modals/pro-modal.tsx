@@ -7,9 +7,8 @@ import { useProModal } from "hooks/use-pro-modal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import axios from "axios";
-import { useUser } from "@clerk/nextjs"; // fetch user info
+import { useUser, useAuth } from "@clerk/nextjs";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
-import { useAuth } from "@clerk/nextjs";
 
 export const ProModal = () => {
   const proModal = useProModal();
@@ -39,7 +38,7 @@ export const ProModal = () => {
 
       const url = res.data.data;
       if (!url) throw new Error("No Stripe URL returned");
-      window.location.href = url; // redirect to Stripe Checkout/Billing Portal
+      window.location.href = url;
     } catch (err: any) {
       toast.error(
         err?.response?.data?.error || err.message || "Something went wrong"
@@ -50,7 +49,10 @@ export const ProModal = () => {
   };
 
   return (
-    <Dialog open={proModal.isOpen} onOpenChange={proModal.onClose}>
+    <Dialog
+      open={proModal.isOpen}
+      onOpenChange={(open) => (open ? proModal.onOpen() : proModal.onClose())}
+    >
       <DialogContent className="max-w-md p-0 overflow-hidden">
         <div className="aspect-video relative flex items-center justify-center">
           <Image src="/hero.svg" alt="Hero" className="object-cover" fill />

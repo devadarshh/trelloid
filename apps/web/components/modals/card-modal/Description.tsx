@@ -101,8 +101,11 @@ const Description = ({ data }: DescriptionProps) => {
               ref={textareaRef}
             />
             <div className="flex items-center gap-x-2">
-              <Button type="submit">Save</Button>
+              <Button className="cursor-pointer" type="submit">
+                Save
+              </Button>
               <Button
+                className="cursor-pointer"
                 type="button"
                 onClick={disableEditing}
                 size="sm"

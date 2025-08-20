@@ -4,9 +4,6 @@ import { createAuditLog } from "../utils/activityServices";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { z } from "zod";
 
-// --------------------
-// Zod Schemas
-// --------------------
 const createListSchema = z.object({
   title: z.string().min(1, "Title is required"),
   boardId: z.string().min(1, "Board ID is required"),
@@ -38,9 +35,7 @@ const reorderListSchema = z.object({
   boardId: z.string().min(1, "Board ID is required"),
 });
 
-// --------------------
-// Controller Functions
-// --------------------
+
 export const handleCreateList = async (req: Request, res: Response) => {
   try {
     const { title, boardId } = createListSchema.parse(req.body);

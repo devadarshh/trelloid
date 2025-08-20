@@ -2,6 +2,7 @@ import { startCase } from "lodash";
 import { auth } from "@clerk/nextjs/server";
 
 import { OrgControl } from "./_components/OrgControl";
+import { ProModal } from "components/modals/pro-modal";
 
 export async function generateMetadata() {
   const { orgSlug } = await auth();
@@ -16,6 +17,7 @@ const OrganizationIdLayout = ({ children }: { children: React.ReactNode }) => {
     <>
       <OrgControl />
       {children}
+      <ProModal />
     </>
   );
 };

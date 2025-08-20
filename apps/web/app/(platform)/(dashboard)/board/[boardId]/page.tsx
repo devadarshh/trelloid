@@ -46,8 +46,6 @@ export default function BoardIdPage({ params }: BoardIdProps) {
           }
         );
 
-        console.log("data of all the cards", response.data.data);
-
         if (isMounted) {
           setLists(response.data.data);
         }
