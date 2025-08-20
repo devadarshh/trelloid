@@ -9,6 +9,7 @@ declare module "express-serve-static-core" {
     };
   }
 }
+
 export type ListWithCards = {
   id: string;
   title: string;
@@ -19,7 +20,6 @@ export type ListWithCards = {
   cards: Card[];
 };
 
-// types/card.ts
 export type Card = {
   id: string;
   title: string;

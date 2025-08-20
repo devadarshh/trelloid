@@ -19,14 +19,12 @@ export const createAuditLog = async (props: AuditLogProps) => {
       throw new Error("User or Organization not found!");
     }
 
-    // Fetch user from DB using Clerk ID
     const user = await prisma.user.findUnique({
       where: { clerkId: clerkUserId },
     });
 
     if (!user) throw new Error("User not found in DB");
 
-    // Fetch organization from DB using Clerk orgId
     const organization = await prisma.organization.findUnique({
       where: { organizationId: clerkOrgId },
     });
@@ -35,12 +33,12 @@ export const createAuditLog = async (props: AuditLogProps) => {
 
     await prisma.auditLog.create({
       data: {
-        orgId: organization.id, // ✅ your internal org PK
+        orgId: organization.id,
         entityId,
         entityType,
         entityTitle,
         action,
-        userId: user.id, // ✅ your internal user PK
+        userId: user.id,
         userImage: user.imageUrl ?? "",
         userName: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
       },

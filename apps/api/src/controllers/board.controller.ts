@@ -2,14 +2,44 @@ import { Request, Response } from "express";
 import prisma from "../prisma/client";
 import { createAuditLog } from "../utils/activityServices";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
+import { z } from "zod";
 
+// Zod schemas
+const createBoardSchema = z.object({
+  orgId: z.string().min(1, "Organization ID is required"),
+  title: z.string().min(1, "Title is required"),
+  imageId: z.string().optional(),
+  imageThumbUrl: z.string().optional(),
+  imageFullUrl: z.string().optional(),
+  imageLinkHTML: z.string().optional(),
+});
+
+const updateBoardSchema = z.object({
+  boardId: z.string().min(1, "Board ID is required"),
+  title: z.string().min(1, "Title is required"),
+});
+
+const deleteBoardSchema = z.object({
+  boardId: z.string().min(1, "Board ID is required"),
+});
+
+const getBoardsQuerySchema = z.object({
+  orgId: z.string().min(1, "Organization ID is required"),
+});
+
+// CREATE BOARD
 export const handleCreateBoard = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
   try {
-    const { userId } = req.auth;
-    console.log(userId);
+    const parseResult = createBoardSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ success: false, errors: parseResult.error.format() });
+    }
+
     const {
       orgId,
       title,
@@ -17,45 +47,37 @@ export const handleCreateBoard = async (
       imageThumbUrl,
       imageFullUrl,
       imageLinkHTML,
-    } = req.body;
+    } = parseResult.data;
+    const { userId } = req.auth;
 
     const orgExists = await prisma.organization.findUnique({
-      where: {
-        organizationId: orgId,
-      },
+      where: { organizationId: orgId },
     });
-    if (!orgExists) {
-      console.log("Organization not found");
-      return res.status(404).json({
-        success: false,
-        message: "Organization not found",
-      });
-    }
-    console.log("6");
+    if (!orgExists)
+      return res
+        .status(404)
+        .json({ success: false, message: "Organization not found" });
+
     const existingBoard = await prisma.board.findFirst({
-      where: { organizationId: orgId, title: title },
+      where: { organizationId: orgId, title },
     });
-    console.log("7");
-    if (existingBoard) {
+    if (existingBoard)
       return res.status(400).json({
-        message: "Board with this title already exists in this organization",
+        success: false,
+        message: "Board with this title already exists",
       });
-    }
-    console.log("8");
+    const imageFullUrlSafe: string = imageFullUrl || "";
     const newBoard = await prisma.board.create({
       data: {
         title,
-        imageId,
-        imageThumbUrl,
-        imageFullUrl,
-        imageLinkHTML,
-        organization: {
-          connect: {
-            organizationId: orgId,
-          },
-        },
+        imageId: imageId || "",
+        imageThumbUrl: imageThumbUrl || "",
+        imageFullUrl: imageFullUrlSafe,
+        imageLinkHTML: imageLinkHTML || "",
+        organization: { connect: { organizationId: orgId } },
       },
     });
+
     await createAuditLog({
       entityTitle: newBoard.title,
       entityId: newBoard.id,
@@ -63,17 +85,15 @@ export const handleCreateBoard = async (
       action: ACTION.CREATE,
       req,
     });
+
     return res.status(201).json({
       success: true,
       message: "Board created successfully",
       data: newBoard,
     });
-  } catch (error: any) {
-    console.error(error);
-    return res.status(400).json({
-      success: false,
-      error: "Server Error",
-    });
+  } catch (error) {
+    console.error("[CREATE_BOARD_ERROR]", error);
+    return res.status(500).json({ success: false, error: "Server error" });
   }
 };
 
@@ -82,139 +102,117 @@ export const handleGetAllBoard = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const orgId = req.query.orgId as string;
-    console.log("Organization ID:", orgId);
-    if (!orgId) {
-      return res.status(400).json({
-        success: false,
-        message: "Organization ID is required",
-      });
+    const parseResult = getBoardsQuerySchema.safeParse(req.query);
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ success: false, errors: parseResult.error.format() });
     }
+
+    const { orgId } = parseResult.data;
 
     const orgExists = await prisma.organization.findUnique({
-      where: {
-        organizationId: orgId,
-      },
+      where: { organizationId: orgId },
     });
-    if (!orgExists) {
-      return res.status(404).json({
-        success: false,
-        message: "Organization not found",
-      });
-    }
+    if (!orgExists)
+      return res
+        .status(404)
+        .json({ success: false, message: "Organization not found" });
+
     const boards = await prisma.board.findMany({
-      where: {
-        organizationId: orgId as string,
-      },
+      where: { organizationId: orgId },
     });
 
-    return res.status(200).json({
-      success: true,
-      data: boards,
-    });
-  } catch (error: any) {
-    console.error(error);
-    return res.status(400).json({
-      success: false,
-      error: "Server Error",
-    });
+    return res.status(200).json({ success: true, data: boards });
+  } catch (error) {
+    console.error("[GET_ALL_BOARDS_ERROR]", error);
+    return res.status(500).json({ success: false, error: "Server error" });
   }
 };
 
-export const handleDeleteBoard = async (req: Request, res: Response) => {
+// DELETE BOARD
+export const handleDeleteBoard = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
-    const { boardId } = req.body;
-
-    console.log(boardId);
-
-    if (!boardId) {
-      return res.status(400).json({
-        success: false,
-        message: "Board ID is required",
-      });
+    const parseResult = deleteBoardSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ success: false, errors: parseResult.error.format() });
     }
+
+    const { boardId } = parseResult.data;
+    const { userId } = req.auth;
 
     const boardExists = await prisma.board.findUnique({
-      where: {
-        id: boardId,
-      },
-    });
-
-    if (!boardExists) {
-      return res.status(404).json({
-        success: false,
-        message: "Board  not found",
-      });
-    }
-
-    const deleteBoard = await prisma.board.delete({
       where: { id: boardId },
+      include: { organization: true },
     });
+    if (!boardExists)
+      return res
+        .status(404)
+        .json({ success: false, message: "Board not found" });
+
+    const deletedBoard = await prisma.board.delete({ where: { id: boardId } });
 
     await createAuditLog({
-      entityTitle: deleteBoard.title,
-      entityId: deleteBoard.id,
+      entityTitle: deletedBoard.title,
+      entityId: deletedBoard.id,
       entityType: ENTITY_TYPE.BOARD,
       action: ACTION.DELETE,
       req,
     });
+
     return res.status(200).json({
       success: true,
-      message: "Board is Deleted",
-      data: deleteBoard,
+      message: "Board deleted successfully",
+      data: deletedBoard,
     });
-  } catch (error: any) {
-    console.error(error);
-    return res.status(400).json({
-      success: false,
-      error: "Server Error",
-    });
+  } catch (error) {
+    console.error("[DELETE_BOARD_ERROR]", error);
+    return res.status(500).json({ success: false, error: "Server error" });
   }
 };
 
-export const handleUpdateBoard = async (req: Request, res: Response) => {
+// UPDATE BOARD
+export const handleUpdateBoard = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
-    const { boardId, title } = req.body;
-
-    console.log(boardId);
-    console.log(title);
-
-    if (!boardId) {
-      return res.status(400).json({
-        success: false,
-        message: "Board ID is required",
-      });
+    const parseResult = updateBoardSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res
+        .status(400)
+        .json({ success: false, errors: parseResult.error.format() });
     }
+
+    const { boardId, title } = parseResult.data;
 
     const boardExists = await prisma.board.findUnique({
-      where: {
-        id: boardId,
-      },
-    });
-
-    if (!boardExists) {
-      return res.status(404).json({
-        success: false,
-        message: "Board  not found",
-      });
-    }
-
-    if (boardExists.title === title) {
-      return res.status(200).json({
-        success: true,
-        message: "No changes made",
-        data: boardExists,
-      });
-    }
-    const updateBoard = await prisma.board.update({
       where: { id: boardId },
-      data: {
-        title: title.trim(),
-      },
     });
+    if (!boardExists)
+      return res
+        .status(404)
+        .json({ success: false, message: "Board not found" });
+
+    if (boardExists.title === title.trim()) {
+      return res
+        .status(200)
+        .json({ success: true, message: "No changes made", data: boardExists });
+    }
+
+    const updatedBoard = await prisma.board.update({
+      where: { id: boardId },
+      data: { title: title.trim() },
+    });
+
     await createAuditLog({
-      entityTitle: updateBoard.title,
-      entityId: updateBoard.id,
+      entityTitle: updatedBoard.title,
+      entityId: updatedBoard.id,
       entityType: ENTITY_TYPE.BOARD,
       action: ACTION.UPDATE,
       req,
@@ -222,14 +220,11 @@ export const handleUpdateBoard = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: "Board  is Updated",
-      data: updateBoard,
+      message: "Board updated successfully",
+      data: updatedBoard,
     });
-  } catch (error: any) {
-    console.error(error);
-    return res.status(400).json({
-      success: false,
-      error: "Server Error",
-    });
+  } catch (error) {
+    console.error("[UPDATE_BOARD_ERROR]", error);
+    return res.status(500).json({ success: false, error: "Server error" });
   }
 };

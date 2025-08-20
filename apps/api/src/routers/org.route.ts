@@ -1,5 +1,9 @@
 import express from "express";
-import { syncOrganizationInDb } from "../controllers/org.controller";
+import {
+  getAllOrganizations,
+  syncOrganizationInDb,
+} from "../controllers/org.controller";
+import { requireAuth } from "@clerk/express";
 const router = express.Router();
 
 router.post(
@@ -7,5 +11,6 @@ router.post(
   express.raw({ type: "application/json" }),
   syncOrganizationInDb
 );
+router.get("/organizations", requireAuth(), getAllOrganizations);
 
 export default router;

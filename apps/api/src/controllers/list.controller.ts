@@ -1,53 +1,69 @@
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
-import { ListWithCards } from "../types/express";
 import { createAuditLog } from "../utils/activityServices";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
+import { z } from "zod";
 
-export const handleCreateList = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
+// --------------------
+// Zod Schemas
+// --------------------
+const createListSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  boardId: z.string().min(1, "Board ID is required"),
+});
+
+const updateListSchema = z.object({
+  listId: z.string().min(1, "List ID is required"),
+  title: z.string().min(1, "Title is required"),
+});
+
+const deleteListSchema = z.object({
+  listId: z.string().min(1, "List ID is required"),
+  boardId: z.string().min(1, "Board ID is required"),
+});
+
+const copyListSchema = z.object({
+  listId: z.string().min(1, "List ID is required"),
+});
+
+const reorderListSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        id: z.string(),
+        order: z.number(),
+      })
+    )
+    .nonempty("Items are required"),
+  boardId: z.string().min(1, "Board ID is required"),
+});
+
+// --------------------
+// Controller Functions
+// --------------------
+export const handleCreateList = async (req: Request, res: Response) => {
   try {
-    const { title, boardId } = req.body;
-    console.log(title);
-    console.log(boardId);
+    const { title, boardId } = createListSchema.parse(req.body);
 
     const boardExists = await prisma.board.findUnique({
-      where: {
-        id: boardId,
-      },
+      where: { id: boardId },
     });
-    if (!boardExists) {
-      console.log("Board not found");
-      return res.status(404).json({
-        success: false,
-        message: "Board not found",
-      });
-    }
+    if (!boardExists)
+      return res
+        .status(404)
+        .json({ success: false, message: "Board not found" });
 
     const listExists = await prisma.list.findFirst({
-      where: {
-        boardId: boardId,
-        title: title,
-      },
+      where: { boardId, title },
     });
-
-    if (listExists) {
+    if (listExists)
       return res.status(400).json({
-        message: "List with this title already exists in this Boards",
+        success: false,
+        message: "List with this title already exists in this board",
       });
-    }
+
     const newList = await prisma.list.create({
-      data: {
-        title,
-        order: 0, // default order, can be updated later
-        board: {
-          connect: {
-            id: boardId,
-          },
-        },
-      },
+      data: { title, order: 0, board: { connect: { id: boardId } } },
     });
 
     await createAuditLog({
@@ -57,223 +73,139 @@ export const handleCreateList = async (
       action: ACTION.CREATE,
       req,
     });
+
     return res.status(201).json({
       success: true,
       message: "List created successfully",
       data: newList,
     });
-  } catch (error: any) {
-    console.error("Error adding list:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to add list",
-      error: error.message,
-    });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: err,
+      });
+    }
+    console.error(err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: err.message });
   }
 };
 
-export const getAllLists = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
+export const handleUpdateList = async (req: Request, res: Response) => {
   try {
-    const boardId = req.query.boardId as string;
-    console.log("Fetching lists for boardId:", boardId);
+    const { listId, title } = updateListSchema.parse(req.body);
 
-    if (!boardId) {
-      return res.status(400).json({
-        success: false,
-        message: "Board ID is required",
-      });
-    }
-
-    const lists = await prisma.list.findMany({
-      where: {
-        boardId: String(boardId),
-      },
-      orderBy: {
-        order: "asc",
-      },
-      include: {
-        cards: {
-          orderBy: {
-            order: "asc",
-          },
-        },
-      },
+    const listExists = await prisma.list.findUnique({
+      where: { id: listId },
+      select: { order: true, title: true },
     });
-    console.log(lists);
+    if (!listExists)
+      return res
+        .status(404)
+        .json({ success: false, message: "List not found" });
+
+    if (listExists.title === title)
+      return res
+        .status(200)
+        .json({ success: true, message: "No changes made", data: listExists });
+
+    const updatedList = await prisma.list.update({
+      where: { id: listId },
+      data: { title: title.trim(), order: listExists.order },
+    });
+
+    await createAuditLog({
+      entityTitle: updatedList.title,
+      entityId: updatedList.id,
+      entityType: ENTITY_TYPE.LIST,
+      action: ACTION.UPDATE,
+      req,
+    });
 
     return res.status(200).json({
       success: true,
-      data: lists,
+      message: "List updated successfully",
+      data: updatedList,
     });
-  } catch (error: any) {
-    console.error("Error Loading lists:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to Load lists",
-      error: error.message,
-    });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: err,
+      });
+    }
+    console.error(err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: err.message });
   }
 };
 
 export const handleDeleteList = async (req: Request, res: Response) => {
   try {
-    const { boardId, listId } = req.body;
-
-    console.log(boardId, listId);
-
-    if (!boardId) {
-      return res.status(400).json({
-        success: false,
-        message: "Board ID is required",
-      });
-    }
-
-    if (!listId) {
-      return res.status(400).json({
-        success: false,
-        message: "List ID is required",
-      });
-    }
+    const { listId, boardId } = deleteListSchema.parse(req.body);
 
     const boardExists = await prisma.board.findUnique({
-      where: {
-        id: boardId,
-      },
+      where: { id: boardId },
     });
+    if (!boardExists)
+      return res
+        .status(404)
+        .json({ success: false, message: "Board not found" });
 
-    if (!boardExists) {
-      return res.status(404).json({
-        success: false,
-        message: "Board  not found",
-      });
-    }
+    const listExists = await prisma.list.findUnique({ where: { id: listId } });
+    if (!listExists)
+      return res
+        .status(404)
+        .json({ success: false, message: "List not found" });
 
-    const listExists = await prisma.list.findUnique({
-      where: {
-        id: listId,
-      },
-    });
+    const deletedList = await prisma.list.delete({ where: { id: listId } });
 
-    if (!listExists) {
-      return res.status(404).json({
-        success: false,
-        message: "List not found",
-      });
-    }
-
-    const deleteList = await prisma.list.delete({
-      where: { id: listId },
-    });
     await createAuditLog({
-      entityTitle: deleteList.title,
-      entityId: deleteList.id,
+      entityTitle: deletedList.title,
+      entityId: deletedList.id,
       entityType: ENTITY_TYPE.LIST,
       action: ACTION.DELETE,
       req,
     });
+
     return res.status(200).json({
       success: true,
-      message: "List is Deleted",
-      data: deleteList,
+      message: "List deleted successfully",
+      data: deletedList,
     });
-  } catch (error: any) {
-    console.error(error);
-    return res.status(400).json({
-      success: false,
-      error: "Server Error",
-    });
-  }
-};
-export const handleUpdateList = async (req: Request, res: Response) => {
-  try {
-    const { listId, title } = req.body;
-
-    console.log(listId);
-    console.log(title);
-
-    if (!listId) {
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
-        message: "List ID is required",
+        message: "Validation failed",
+        errors: err,
       });
     }
-
-    const listExists = await prisma.list.findUnique({
-      where: {
-        id: listId,
-      },
-      select: { order: true, title: true },
-    });
-
-    if (!listExists) {
-      return res.status(404).json({
-        success: false,
-        message: "List not found",
-      });
-    }
-
-    if (listExists.title === title) {
-      return res.status(200).json({
-        success: true,
-        message: "No changes made",
-        data: listExists,
-      });
-    }
-    const updateList = await prisma.list.update({
-      where: { id: listId },
-      data: {
-        title: title.trim(),
-        order: listExists?.order,
-      },
-    });
-    await createAuditLog({
-      entityTitle: updateList.title,
-      entityId: updateList.id,
-      entityType: ENTITY_TYPE.CARD,
-      action: ACTION.UPDATE,
-      req,
-    });
-    return res.status(200).json({
-      success: true,
-      message: "List  is Updated",
-      data: updateList,
-    });
-  } catch (error: any) {
-    console.error(error);
-    return res.status(400).json({
-      success: false,
-      error: "Server Error",
-    });
+    console.error(err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: err.message });
   }
 };
 
 export const handleCopyList = async (req: Request, res: Response) => {
   try {
-    const { listId } = req.body;
-
-    console.log(listId);
-
-    if (!listId) {
-      return res.status(400).json({
-        success: false,
-        message: "List ID is required",
-      });
-    }
+    const { listId } = copyListSchema.parse(req.body);
 
     const listExists = await prisma.list.findUnique({
       where: { id: listId },
       include: { cards: true },
     });
+    if (!listExists)
+      return res
+        .status(404)
+        .json({ success: false, message: "List not found" });
 
-    if (!listExists) {
-      return res.status(404).json({
-        success: false,
-        message: "List not found",
-      });
-    }
     const newList = await prisma.list.create({
       data: {
         title: `${listExists.title} (Copy)`,
@@ -297,33 +229,76 @@ export const handleCopyList = async (req: Request, res: Response) => {
       action: ACTION.CREATE,
       req,
     });
+
     return res.status(201).json({
       success: true,
-      message: "Copy List created successfully",
+      message: "List copied successfully",
       data: newList,
     });
-  } catch (error: any) {
-    console.error(error);
-    return res.status(400).json({
-      success: false,
-      error: "Server Error",
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: err,
+      });
+    }
+    console.error(err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: err.message });
+  }
+};
+
+export const getAllLists = async (req: Request, res: Response) => {
+  try {
+    const boardId = req.query.boardId as string;
+    if (!boardId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Board ID is required" });
+
+    const lists = await prisma.list.findMany({
+      where: { boardId },
+      orderBy: { order: "asc" },
+      include: { cards: { orderBy: { order: "asc" } } },
     });
+
+    return res.status(200).json({ success: true, data: lists });
+  } catch (err: any) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: err.message });
   }
 };
 
 export const handleListReorder = async (req: Request, res: Response) => {
   try {
-    const { items, boardId } = req.body;
-    const transaction = items.map((list: ListWithCards) =>
+    const { items, boardId } = reorderListSchema.parse(req.body);
+
+    const transaction = items.map((list) =>
       prisma.list.update({
-        where: { id: list.id, boardId: boardId },
+        where: { id: list.id },
         data: { order: list.order },
       })
     );
+
     await prisma.$transaction(transaction);
-    res.status(200).json({ message: "List order updated successfully." });
-  } catch (error) {
-    console.error("API Error:", error);
-    res.status(500).json({ message: "Failed to update list order." });
+    return res
+      .status(200)
+      .json({ success: true, message: "List order updated successfully." });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: err,
+      });
+    }
+    console.error(err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: err.message });
   }
 };
