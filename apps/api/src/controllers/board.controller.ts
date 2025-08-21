@@ -8,6 +8,7 @@ import {
   hasAvailableCount,
 } from "../controllers/orgLimits.controller";
 import { z } from "zod";
+import { checkSubscription } from "../utils/checkSubscription";
 
 const createBoardSchema = z.object({
   orgId: z.string().min(1, "Organization ID is required"),
@@ -52,12 +53,17 @@ export const handleCreateBoard = async (
       imageLinkHTML,
     } = parseResult.data;
     const { userId } = req.auth;
-    const canCreate = await hasAvailableCount(orgId);
-    if (!canCreate) {
-      return res.status(403).json({
-        success: false,
-        message: "You have reached the maximum number of free boards.",
-      });
+    const isPro = await checkSubscription(orgId);
+
+    if (!isPro) {
+      const canCreate = await hasAvailableCount(orgId);
+      if (!canCreate) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You have reached the maximum number of free boards. Upgrade to Pro!",
+        });
+      }
     }
     const orgExists = await prisma.organization.findUnique({
       where: { organizationId: orgId },
@@ -86,7 +92,9 @@ export const handleCreateBoard = async (
         organization: { connect: { organizationId: orgId } },
       },
     });
-    await decreaseAvailableCount(orgId);
+    if (!isPro) {
+      await decreaseAvailableCount(orgId);
+    }
     await createAuditLog({
       entityTitle: newBoard.title,
       entityId: newBoard.id,
@@ -165,7 +173,15 @@ export const handleDeleteBoard = async (
         .json({ success: false, message: "Board not found" });
 
     const deletedBoard = await prisma.board.delete({ where: { id: boardId } });
-    await incrementAvailableCount(boardExists.organization.organizationId);
+
+    const isPro = await checkSubscription(
+      boardExists.organization.organizationId
+    );
+
+    if (!isPro) {
+      await incrementAvailableCount(boardExists.organization.organizationId);
+    }
+
     await createAuditLog({
       entityTitle: deletedBoard.title,
       entityId: deletedBoard.id,

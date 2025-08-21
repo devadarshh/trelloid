@@ -23,10 +23,10 @@ import {
   useCreateBoardStore,
   useImageStore,
   useLoadingStore,
+  useOrgProStore,
   useRefreshBoard,
 } from "hooks/boardHooks/useStore";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
-import { defaultImages } from "constants/images";
 import {
   createBoardSchema,
   CreateBoardFormData,
@@ -45,11 +45,12 @@ const CreateBoardPopover = () => {
   const { getToken } = useAuth();
   const { triggerRefreshBoards } = useRefreshBoard();
   const { isLoading, setLoading } = useLoadingStore();
-  const { images, setImages } = useImageStore();
+  const { images } = useImageStore();
   const closeRef = useRef<HTMLButtonElement>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { setRemaining, remaining } = useBoardLimitStore();
   const proModal = useProModal();
+  const { isPro } = useOrgProStore();
 
   const {
     title,
@@ -64,6 +65,7 @@ const CreateBoardPopover = () => {
     setImageLinkHTML,
   } = useCreateBoardStore();
 
+  // Fetch board limit
   const fetchLimit = async () => {
     if (!orgId) return;
     try {
@@ -83,31 +85,11 @@ const CreateBoardPopover = () => {
     fetchLimit();
   }, [orgId]);
 
-  useEffect(() => {
-    let mounted = true;
-    const fetchImages = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("http://localhost:5000/api/images");
-        if (mounted && Array.isArray(response.data)) setImages(response.data);
-        else setImages(defaultImages);
-      } catch {
-        setImages(defaultImages);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchImages();
-    return () => {
-      mounted = false;
-    };
-  }, [setImages, setLoading]);
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
-    if (remaining === 0) {
+    if (!isPro && remaining === 0) {
       toast.error("You have reached your free board limit. Upgrade to Pro!");
       proModal.onOpen();
       return;
@@ -162,7 +144,11 @@ const CreateBoardPopover = () => {
         <button className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col items-center justify-center hover:opacity-75 transition cursor-pointer">
           <p className="text-sm">Create new board</p>
           <span className="text-xs">
-            {remaining !== undefined ? `${remaining} remaining` : "Loading..."}
+            {isPro
+              ? "Unlimited"
+              : remaining !== undefined
+                ? `${remaining} remaining`
+                : "Loading..."}
           </span>
         </button>
       </PopoverTrigger>

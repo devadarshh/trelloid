@@ -1,7 +1,39 @@
+import z from "zod";
 import prisma from "../prisma/client";
 import { Request, Response } from "express";
 
 const MAX_FREE_BOARDS = 5;
+
+const checkSubscriptionQuerySchema = z.object({
+  orgId: z.string().nonempty(),
+});
+
+export const checkOrgSubscription = async (req: Request, res: Response) => {
+  try {
+    const parseResult = checkSubscriptionQuerySchema.safeParse(req.query);
+
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or missing orgId",
+        errors: parseResult.error.format(),
+      });
+    }
+
+    const { orgId } = parseResult.data;
+
+    const subscription = await prisma.orgSubscription.findUnique({
+      where: { orgId },
+    });
+
+    const isSubscribed = !!subscription;
+
+    return res.status(200).json({ success: true, isSubscribed });
+  } catch (err) {
+    console.error("[CHECK_ORG_SUBSCRIPTION_ERROR]", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
 
 export const incrementAvailableCount = async (orgId: string) => {
   const orgLimit = await prisma.orgLimit.findUnique({ where: { orgId } });
@@ -18,7 +50,6 @@ export const decreaseAvailableCount = async (orgId: string) => {
   const orgLimit = await prisma.orgLimit.findUnique({ where: { orgId } });
 
   if (orgLimit) {
-    // Only decrease if count < MAX_FREE_BOARDS
     if (orgLimit.count < MAX_FREE_BOARDS) {
       await prisma.orgLimit.update({
         where: { orgId },

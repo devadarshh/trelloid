@@ -5,15 +5,11 @@ import { CreditCard } from "lucide-react";
 import { useOrganization } from "@clerk/nextjs";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { useOrgProStore } from "hooks/boardHooks/useStore";
 
-interface InfoProps {
-  isPro: boolean;
-}
-
-export const Info: React.FC<InfoProps> & { Skeleton: React.FC } = ({
-  isPro,
-}) => {
+export const Info: React.FC & { Skeleton: React.FC } = () => {
   const { organization, isLoaded } = useOrganization();
+  const { isPro } = useOrgProStore();
 
   if (!isLoaded || !organization) {
     return <Info.Skeleton />;

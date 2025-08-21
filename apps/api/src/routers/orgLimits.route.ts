@@ -1,5 +1,8 @@
 import express from "express";
-import { handleGetAvailableCount } from "../controllers/orgLimits.controller";
+import {
+  handleGetAvailableCount,
+  checkOrgSubscription,
+} from "../controllers/orgLimits.controller";
 import { requireAuth } from "@clerk/express";
 
 const router = express.Router();
@@ -7,5 +10,6 @@ const router = express.Router();
 router.use(requireAuth());
 
 router.get("/count", handleGetAvailableCount);
+router.get("/subscription-status", checkOrgSubscription);
 
 export default router;

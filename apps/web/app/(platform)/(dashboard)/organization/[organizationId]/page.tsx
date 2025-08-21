@@ -1,9 +1,10 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { BoardList } from "app/(platform)/(dashboard)/board/[boardId]/_components/BoardList";
 import { Separator } from "@/components/ui/separator";
 import { Info } from "./_components/Info";
+import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
 
 interface OrganizationIdProps {
   params: { organizationId: string };
@@ -11,12 +12,15 @@ interface OrganizationIdProps {
 
 const OrganizationIdPage: React.FC<OrganizationIdProps> = ({ params }) => {
   const { organizationId } = params;
-
+  const { orgId, setOrgId } = useOrganizationIdStore();
+  useEffect(() => {
+    setOrgId(organizationId);
+    console.log("set orgId to:", organizationId);
+  }, [organizationId, setOrgId]);
   return (
     <div className="w-full mb-20">
-      <Info organizationId={organizationId} />
+      <Info />
 
-      {/* Separator */}
       <Separator className="my-4" />
 
       <div className="px-2 md:px-4">

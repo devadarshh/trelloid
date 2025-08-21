@@ -1,20 +1,18 @@
-import { startCase } from "lodash";
-import { auth } from "@clerk/nextjs/server";
-
 import { OrgControl } from "./_components/OrgControl";
 import { ProModal } from "components/modals/pro-modal";
+import { ProStatusProvider } from "./_components/ProStatusProvider";
 
-export async function generateMetadata() {
-  const { orgSlug } = await auth();
-
-  return {
-    title: startCase(orgSlug || "organization"),
-  };
+interface LayoutProps {
+  children: React.ReactNode;
+  params: { organizationId: string };
 }
 
-const OrganizationIdLayout = ({ children }: { children: React.ReactNode }) => {
+const OrganizationIdLayout: React.FC<LayoutProps> = ({ children, params }) => {
+  const { organizationId } = params;
+
   return (
     <>
+      <ProStatusProvider organizationId={organizationId} />
       <OrgControl />
       {children}
       <ProModal />

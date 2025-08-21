@@ -114,6 +114,15 @@ export const useBoardLimitStore = create<BoardLimitState>((set) => ({
   remaining: 0,
   setRemaining: (value) => set({ remaining: value }),
 }));
+interface OrgProStore {
+  isPro: boolean;
+  setIsPro: (value: boolean) => void;
+}
+
+export const useOrgProStore = create<OrgProStore>((set) => ({
+  isPro: false,
+  setIsPro: (value: boolean) => set({ isPro: value }),
+}));
 type RefreshBoardState = {
   shouldRefresh: boolean;
   triggerRefreshBoards: () => void;
