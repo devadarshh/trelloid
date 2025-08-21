@@ -23,7 +23,13 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/stripe/webhook") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(clerkMiddleware());
 
 app.use("/", authWebHook);
@@ -33,7 +39,7 @@ app.use("/api/v1", boardRoutes);
 app.use("/api/v1", listRoutes);
 app.use("/api/v1", cardRoutes);
 app.use("/api/v1", orgLimitRoutes);
-app.use("/api", stripeRoutes);
+app.use("/", stripeRoutes);
 app.use("/api/v1/audit-logs", activityRoutes);
 app.use("/api", unsplashRoutes);
 

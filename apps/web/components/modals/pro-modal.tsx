@@ -28,7 +28,7 @@ export const ProModal = () => {
       setIsLoading(true);
 
       const res = await axios.post(
-        `http://localhost:5000/api/stripe/redirect`,
+        `http://localhost:5000/stripe/redirect`,
         { orgId },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -75,7 +75,7 @@ export const ProModal = () => {
           <Button
             disabled={isLoading}
             onClick={handleUpgrade}
-            className="w-full"
+            className="w-full cursor-pointer"
             variant="primary"
           >
             {isLoading ? "Redirecting..." : "Upgrade"}
