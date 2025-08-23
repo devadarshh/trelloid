@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { createAuditLog } from "../utils/activityServices";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
-import prisma from "../prisma/client";
+import prisma from "../prisma";
 import { getAuth } from "@clerk/express";
 import { z } from "zod";
 

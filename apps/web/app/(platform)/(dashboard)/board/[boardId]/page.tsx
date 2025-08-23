@@ -71,9 +71,11 @@ export default function BoardIdPage({ params }: BoardIdProps) {
   }, [boardId, refreshLists, refreshCards, getToken, setLists, setLoading]);
 
   return (
-    <div className="flex items-start gap-4 px-6 overflow-x-auto h-full mt-6">
-      <ListContainer boardId={boardId} data={lists} />
-      <CardModal />
+    <div className="w-full h-[calc(100vh-7rem)] overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+      <div className="flex items-start gap-4 px-6 h-full">
+        <ListContainer boardId={boardId} data={lists} />
+        <CardModal />
+      </div>
     </div>
   );
 }

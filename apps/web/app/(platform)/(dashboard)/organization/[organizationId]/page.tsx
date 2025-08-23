@@ -15,7 +15,6 @@ const OrganizationIdPage: React.FC<OrganizationIdProps> = ({ params }) => {
   const { orgId, setOrgId } = useOrganizationIdStore();
   useEffect(() => {
     setOrgId(organizationId);
-    console.log("set orgId to:", organizationId);
   }, [organizationId, setOrgId]);
   return (
     <div className="w-full mb-20">

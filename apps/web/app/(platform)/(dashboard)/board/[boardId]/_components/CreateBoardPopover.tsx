@@ -32,6 +32,7 @@ import {
   CreateBoardFormData,
 } from "schema/validationSchema";
 import { useProModal } from "hooks/use-pro-modal";
+import { defaultImages } from "constants/images";
 
 type UnsplashImage = {
   id: string;
@@ -45,7 +46,7 @@ const CreateBoardPopover = () => {
   const { getToken } = useAuth();
   const { triggerRefreshBoards } = useRefreshBoard();
   const { isLoading, setLoading } = useLoadingStore();
-  const { images } = useImageStore();
+  const { images, setImages } = useImageStore();
   const closeRef = useRef<HTMLButtonElement>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { setRemaining, remaining } = useBoardLimitStore();
@@ -64,8 +65,28 @@ const CreateBoardPopover = () => {
     setImageFullUrl,
     setImageLinkHTML,
   } = useCreateBoardStore();
+  const fetchImages = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:5000/api/images");
+      const newImages: UnsplashImage[] = Array.isArray(response.data)
+        ? response.data
+        : defaultImages;
 
-  // Fetch board limit
+      const existingIds = new Set(images.map((img) => img.id));
+      const uniqueImages = newImages.filter((img) => !existingIds.has(img.id));
+
+      setImages(uniqueImages.length ? uniqueImages : newImages);
+    } catch {
+      setImages(defaultImages);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchImages();
+  }, [setImages]);
+
   const fetchLimit = async () => {
     if (!orgId) return;
     try {
@@ -82,7 +103,7 @@ const CreateBoardPopover = () => {
   };
 
   useEffect(() => {
-    fetchLimit();
+    if (orgId) fetchLimit();
   }, [orgId]);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -125,21 +146,20 @@ const CreateBoardPopover = () => {
       setImageLinkHTML("");
 
       closeRef.current?.click();
-    } catch (err: any) {
-      if (err.name === "ValidationError") {
-        const newErrors: Record<string, string> = {};
-        err.inner.forEach((e: any) => {
-          if (e.path) newErrors[e.path] = e.message;
-        });
-        setErrors(newErrors);
-      }
+    } catch (err: unknown) {
+      const message =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Something went wrong";
+
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Popover>
+    <Popover onOpenChange={(open) => open && fetchImages()}>
       <PopoverTrigger asChild>
         <button className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col items-center justify-center hover:opacity-75 transition cursor-pointer">
           <p className="text-sm">Create new board</p>

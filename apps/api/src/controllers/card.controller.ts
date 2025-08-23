@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import prisma from "../prisma/client";
+import prisma from "../prisma";
+
 import { createAuditLog } from "../utils/activityServices";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { z } from "zod";
@@ -91,7 +92,6 @@ export const handleUpdateCard = async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, message: "Card not found" });
 
-    // No changes detected
     if (
       (title === undefined || title === cardExists.title) &&
       (description === undefined || description === cardExists.description)

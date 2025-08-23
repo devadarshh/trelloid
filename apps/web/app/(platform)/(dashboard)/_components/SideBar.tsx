@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useLocalStorage } from "usehooks-ts";
-import { useOrganization, useOrganizationList } from "@clerk/nextjs";
-
+import { useOrganization, useOrganizationList, useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion } from "@/components/ui/accordion";
@@ -21,39 +20,169 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
     storageKey,
     {}
   );
+
   const { organization: activeOrganization, isLoaded: isLoadedOrg } =
     useOrganization();
-  const { userMemberships, isLoaded: isLoadedOrgList } = useOrganizationList({
+
+  const {
+    userMemberships,
+    isLoaded: isLoadedOrgList,
+    reload: reloadOrgList,
+  } = useOrganizationList({
     userMemberships: { infinite: true },
   });
 
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const { addListener } = useClerk();
 
- useEffect(() => {
-  if (!isLoadedOrgList || !userMemberships?.data) return;
+  const [organizations, setOrganizations] = useLocalStorage<Organization[]>(
+    "t-sidebar-orgs",
+    []
+  );
+  const [optimisticCreates, setOptimisticCreates] = useLocalStorage<string[]>(
+    "t-sidebar-orgs-creates",
+    []
+  );
+  const [tombstones, setTombstones] = useLocalStorage<string[]>(
+    "t-sidebar-orgs-tombstones",
+    []
+  );
 
-  const orgs: Organization[] = userMemberships.data.map(({ organization }) => ({
-    id: organization.id,
-    slug: organization.slug ?? "",
-    imageUrl: organization.imageUrl,
-    name: organization.name,
-  }));
+  // 🔹 Merge server orgs with optimistic orgs
+  useEffect(() => {
+    if (!isLoadedOrgList || !userMemberships?.data) return;
 
-  setOrganizations((prev) => {
+    const serverOrgs: Organization[] = userMemberships.data.map(
+      ({ organization }) => ({
+        id: organization.id,
+        slug: organization.slug ?? "",
+        imageUrl: organization.imageUrl,
+        name: organization.name,
+      })
+    );
+
+    // ✅ Filter out tombstoned orgs (deleted locally)
+    let next = serverOrgs.filter((o) => !tombstones.includes(o.id));
+
+    // Always include optimistic orgs
+    const optimisticOrgs = organizations.filter((o) =>
+      optimisticCreates.includes(o.id)
+    );
+
+    next = [...next, ...optimisticOrgs];
+
+    // ✅ Add active org only if not tombstoned
+    if (isLoadedOrg && activeOrganization) {
+      const ao: Organization = {
+        id: activeOrganization.id,
+        slug: activeOrganization.slug ?? "",
+        imageUrl: activeOrganization.imageUrl,
+        name: activeOrganization.name,
+      };
+      if (!tombstones.includes(ao.id) && !next.some((o) => o.id === ao.id)) {
+        next = [...next, ao];
+      }
+    }
+
     const same =
-      prev.length === orgs.length &&
-      prev.every((o, i) => o.id === orgs[i].id);
-    return same ? prev : orgs;
-  });
-}, [isLoadedOrgList, userMemberships?.data]);
+      organizations.length === next.length &&
+      organizations.every((o, i) => o.id === next[i].id);
+
+    if (!same) {
+      setOrganizations(next);
+    }
+
+    if (tombstones.length) {
+      const stillOnServer = new Set(serverOrgs.map((o) => o.id));
+      const cleaned = tombstones.filter((id) => stillOnServer.has(id));
+      const confirmedGone = tombstones.filter((id) => !stillOnServer.has(id));
+
+      if (confirmedGone.length) {
+        setTombstones((prev) =>
+          prev.filter((id) => !confirmedGone.includes(id))
+        );
+      }
+    }
+
+    // Clean optimistic creates once Clerk returns them
+    if (optimisticCreates.length) {
+      const onServer = new Set(serverOrgs.map((o) => o.id));
+      const cleanedCreates = optimisticCreates.filter(
+        (id) => !onServer.has(id)
+      );
+      if (cleanedCreates.length !== optimisticCreates.length) {
+        setOptimisticCreates(cleanedCreates);
+      }
+    }
+  }, [
+    isLoadedOrgList,
+    userMemberships?.data,
+    tombstones,
+    optimisticCreates,
+    organizations,
+    isLoadedOrg,
+    activeOrganization,
+    setOrganizations,
+    setOptimisticCreates,
+    setTombstones,
+  ]);
+
+  useEffect(() => {
+    const unsubscribe = addListener((event: any) => {
+      if (event.type === "organization.created") {
+        const newOrg: Organization = {
+          id: event.data.id,
+          slug: event.data.slug ?? "",
+          imageUrl: event.data.imageUrl,
+          name: event.data.name,
+        };
+
+        // Optimistically add org
+        setOrganizations((prev) =>
+          prev.some((o) => o.id === newOrg.id) ? prev : [...prev, newOrg]
+        );
+        setOptimisticCreates((prev) =>
+          prev.includes(newOrg.id) ? prev : [...prev, newOrg.id]
+        );
+        setTombstones((prev) => prev.filter((id) => id !== newOrg.id));
+
+        // 🔹 Refresh organization list
+        reloadOrgList();
+      }
+
+      if (event.type === "organization.deleted") {
+        const deletedId: string = event.data.id;
+
+        // ✅ Immediately remove from UI
+        setOrganizations((prev) => prev.filter((o) => o.id !== deletedId));
+
+        // ✅ Mark tombstone to prevent merge effect from re-adding
+        setTombstones((prev) =>
+          prev.includes(deletedId) ? prev : [...prev, deletedId]
+        );
+
+        // ✅ Clear any optimistic create with same id
+        setOptimisticCreates((prev) => prev.filter((id) => id !== deletedId));
+
+        // 🔹 Refresh organization list
+        reloadOrgList();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [
+    addListener,
+    reloadOrgList,
+    setOrganizations,
+    setOptimisticCreates,
+    setTombstones,
+  ]);
 
   const defaultAccordionValue: string[] = Object.keys(expanded).filter(
     (key) => expanded[key]
   );
 
-  const onExpand = (id: string) => {
+  const onExpand = (id: string) =>
     setExpanded((curr) => ({ ...curr, [id]: !curr[id] }));
-  };
 
   if (!isLoadedOrg || !isLoadedOrgList) {
     return (

@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client-js"
 }
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 
 model User {
   id             String        @id @default(cuid())
@@ -18,7 +18,7 @@ model User {
   updatedAt      DateTime      @updatedAt
   
   organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   auditLogs      AuditLog[]   
 }
 
@@ -26,7 +26,7 @@ model Organization {
   id              String          @id @default(cuid()) 
   organizationId  String          @unique           
   name            String
- organizationImage String?
+  organizationImage String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   
@@ -74,6 +74,7 @@ model Card {
   updatedAt   DateTime @updatedAt
 
   @@index([listId])
+  @@index([listId, order])
 }
 
 enum ACTION {

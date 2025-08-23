@@ -1,5 +1,5 @@
 import z from "zod";
-import prisma from "../prisma/client";
+import prisma from "../prisma";
 import { Request, Response } from "express";
 
 const MAX_FREE_BOARDS = 5;
@@ -78,7 +78,6 @@ export const handleGetAvailableCount = async (req: Request, res: Response) => {
       });
     }
 
-    // Find or create orgLimit row
     let orgLimit = await prisma.orgLimit.findUnique({
       where: { orgId },
     });
@@ -87,7 +86,7 @@ export const handleGetAvailableCount = async (req: Request, res: Response) => {
       orgLimit = await prisma.orgLimit.create({
         data: {
           orgId,
-          count: 0, // start fresh
+          count: 0,
         },
       });
     }

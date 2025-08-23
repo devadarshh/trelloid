@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import prisma from "../prisma/client";
+import prisma from "../prisma";
 import { createAuditLog } from "../utils/activityServices";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { z } from "zod";
@@ -34,7 +34,6 @@ const reorderListSchema = z.object({
     .nonempty("Items are required"),
   boardId: z.string().min(1, "Board ID is required"),
 });
-
 
 export const handleCreateList = async (req: Request, res: Response) => {
   try {

@@ -1,4 +1,4 @@
-import prisma from "../prisma/client";
+import prisma from "../prisma";
 const DAY_IN_MS = 86_400_000;
 
 export const checkSubscription = async (orgId: string) => {

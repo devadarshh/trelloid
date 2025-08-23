@@ -13,14 +13,13 @@
   "description": "",
   "dependencies": {
     "@clerk/express": "^1.7.16",
-    "@prisma/client": "^6.13.0",
+    "@prisma/client": "^6.14.0",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "node-fetch": "^3.3.2",
     "pg": "^8.16.3",
-    "prisma": "^6.13.0",
     "stripe": "^18.4.0",
     "svix": "^1.70.1",
     "unsplash-js": "^7.0.19",
@@ -31,7 +30,9 @@
     "@types/express": "^5.0.3",
     "@types/node": "^24.2.0",
     "@types/stripe": "^8.0.416",
+    "ngrok": "^5.0.0-beta.2",
     "nodemon": "^3.1.10",
+    "prisma": "^6.14.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }

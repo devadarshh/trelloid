@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import prisma from "../prisma/client";
+import prisma from "../prisma";
+
 import { createAuditLog } from "../utils/activityServices";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import {
@@ -52,7 +53,7 @@ export const handleCreateBoard = async (
       imageFullUrl,
       imageLinkHTML,
     } = parseResult.data;
-    const { userId } = req.auth;
+
     const isPro = await checkSubscription(orgId);
 
     if (!isPro) {
@@ -76,6 +77,7 @@ export const handleCreateBoard = async (
     const existingBoard = await prisma.board.findFirst({
       where: { organizationId: orgId, title },
     });
+
     if (existingBoard)
       return res.status(400).json({
         success: false,
@@ -147,7 +149,6 @@ export const handleGetAllBoard = async (
   }
 };
 
-// DELETE BOARD
 export const handleDeleteBoard = async (
   req: Request,
   res: Response
@@ -161,7 +162,6 @@ export const handleDeleteBoard = async (
     }
 
     const { boardId } = parseResult.data;
-    const { userId } = req.auth;
 
     const boardExists = await prisma.board.findUnique({
       where: { id: boardId },
@@ -173,13 +173,12 @@ export const handleDeleteBoard = async (
         .json({ success: false, message: "Board not found" });
 
     const deletedBoard = await prisma.board.delete({ where: { id: boardId } });
+    const orgId = boardExists.organization.organizationId;
 
-    const isPro = await checkSubscription(
-      boardExists.organization.organizationId
-    );
+    const isPro = await checkSubscription(orgId);
 
     if (!isPro) {
-      await incrementAvailableCount(boardExists.organization.organizationId);
+      await incrementAvailableCount(orgId);
     }
 
     await createAuditLog({
@@ -201,7 +200,6 @@ export const handleDeleteBoard = async (
   }
 };
 
-// UPDATE BOARD
 export const handleUpdateBoard = async (
   req: Request,
   res: Response

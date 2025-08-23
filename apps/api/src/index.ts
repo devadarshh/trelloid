@@ -30,10 +30,10 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
   }
 });
+app.use("/", orgRoutes);
 app.use(clerkMiddleware());
 
 app.use("/", authWebHook);
-app.use("/", orgRoutes);
 
 app.use("/api/v1", boardRoutes);
 app.use("/api/v1", listRoutes);

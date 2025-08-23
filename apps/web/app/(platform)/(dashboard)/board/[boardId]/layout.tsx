@@ -16,15 +16,19 @@ const BoardIdLayout = ({ children }: { children: React.ReactNode }) => {
   }, [currentBoard?.title]);
 
   return (
-    <div className="relative min-h-screen h-full overflow-y-auto">
+    <div className="relative min-h-screen h-full overflow-y-auto overflow-x-hidden">
       <div
         className="fixed inset-0 bg-no-repeat bg-cover bg-center -z-10"
-        style={{ backgroundImage: `url(${currentBoard?.imageFullUrl || ""})` }}
+        style={{
+          backgroundImage: `url(${currentBoard?.imageFullUrl || ""})`,
+        }}
       />
       <div className="fixed inset-0 bg-black/10 -z-10" />
 
       <BoardNavBar />
-      <main className="relative pt-28">{children}</main>
+      <main className="relative pt-28 w-full max-w-full overflow-x-auto overflow-y-hidden">
+        {children}
+      </main>
     </div>
   );
 };

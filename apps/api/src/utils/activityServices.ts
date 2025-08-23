@@ -1,6 +1,7 @@
+import { Request } from "express";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { getAuth } from "@clerk/express";
-import prisma from "../prisma/client";
+import prisma from "../prisma";
 
 interface AuditLogProps {
   entityId: string;

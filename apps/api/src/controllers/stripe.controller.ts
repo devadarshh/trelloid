@@ -1,25 +1,23 @@
 import { Request, Response } from "express";
-import prisma from "../prisma/client";
+import prisma from "../prisma";
 import { stripe } from "../utils/stripe";
 import { clerkClient } from "@clerk/express";
 import Stripe from "stripe";
-/**
- * Redirect to Stripe Checkout or Billing Portal
- */
+
 export const stripeRedirect = async (req: Request, res: Response) => {
   try {
     const { orgId } = req.body;
 
-    if (!orgId)
+    if (!orgId) {
       return res.status(400).json({ error: "Organization ID required" });
+    }
 
     const authUser = (req as any).auth?.userId;
     if (!authUser) return res.status(401).json({ error: "Unauthorized" });
 
     const user = await clerkClient.users.getUser(authUser);
     const email = user.emailAddresses[0].emailAddress;
-
-    const frontendUrl = `http://localhost:3000/organization/${orgId}`;
+    const frontendUrl = `${process.env.FRONTEND_URL}/organization/${orgId}`;
     let url = "";
 
     const orgSubscription = await prisma.orgSubscription.findUnique({
@@ -67,10 +65,6 @@ export const stripeRedirect = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Stripe Webhook Handler
- * Ensure req.body is Buffer (raw) from bodyParser.raw()
- */
 export const stripeWebhook = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"] as string;
 
@@ -81,22 +75,17 @@ export const stripeWebhook = async (req: Request, res: Response) => {
   let event: Stripe.Event;
 
   try {
-    // req.body must be a Buffer for webhook signature verification
     event = stripe.webhooks.constructEvent(
       req.body as Buffer,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err: any) {
-    console.error(
-      "⚠️ Stripe Webhook signature verification failed:",
-      err.message
-    );
+    console.error("Stripe Webhook signature verification failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   try {
-    // Only handle sessions with metadata.orgId
     const session = event.data.object as Stripe.Checkout.Session;
     const orgId = session.metadata?.orgId;
 
@@ -104,17 +93,14 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       return res.status(400).send("Org ID is required");
     }
 
-    // Retrieve subscription details from Stripe
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription as string
     );
 
-    // Cast to any to access deprecated fields
     const stripeCurrentPeriodEnd = (subscription as any).current_period_end
       ? new Date((subscription as any).current_period_end * 1000)
       : null;
 
-    // Handle checkout session completed
     if (event.type === "checkout.session.completed") {
       await prisma.orgSubscription.create({
         data: {
@@ -127,7 +113,6 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       });
     }
 
-    // Handle recurring invoice payment succeeded
     if (event.type === "invoice.payment_succeeded") {
       await prisma.orgSubscription.update({
         where: { stripeSubscriptionId: subscription.id },
@@ -140,7 +125,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
 
     res.status(200).send("Webhook received successfully");
   } catch (error) {
-    console.error("⚠️ Stripe Webhook handling error:", error);
+    console.error(" Stripe Webhook handling error:", error);
     res.status(500).send("Internal server error");
   }
 };

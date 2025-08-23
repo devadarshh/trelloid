@@ -46,7 +46,7 @@ type UnsplashImage = {
 };
 
 const OrgNavBar = () => {
-  const { isLoading, setLoading } = useLoadingStore();
+  const [isLoading, setLoading] = useState(false);
   const { images, setImages } = useImageStore();
   const { orgId } = useOrganizationIdStore();
   const { getToken } = useAuth();
@@ -68,7 +68,6 @@ const OrgNavBar = () => {
     setImageLinkHTML,
   } = useCreateBoardStore();
 
-  // Fetch remaining boards from backend
   const fetchLimit = async () => {
     if (!orgId) return;
     try {
@@ -77,44 +76,35 @@ const OrgNavBar = () => {
         `http://localhost:5000/api/v1/count?orgId=${orgId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("Remaining Board fro mthe bacekd", res.data.remaining);
       setRemaining(res.data.remaining);
     } catch (err) {
       console.error("Error fetching board limit:", err);
       setRemaining(0);
     }
   };
-
   useEffect(() => {
-    fetchLimit();
+    if (orgId) fetchLimit();
   }, [orgId]);
+  const fetchImages = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:5000/api/images");
+      const newImages: UnsplashImage[] = Array.isArray(response.data)
+        ? response.data
+        : defaultImages;
 
+      const existingIds = new Set(images.map((img) => img.id));
+      const uniqueImages = newImages.filter((img) => !existingIds.has(img.id));
+
+      setImages(uniqueImages.length ? uniqueImages : newImages);
+    } catch {
+      setImages(defaultImages);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    let mounted = true;
-    const fetchImages = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("http://localhost:5000/api/images");
-        const newImages: UnsplashImage[] = Array.isArray(response.data)
-          ? response.data
-          : defaultImages;
-
-        const existingIds = new Set(images.map((img) => img.id));
-        const uniqueImages = newImages.filter(
-          (img) => !existingIds.has(img.id)
-        );
-
-        if (mounted) setImages(uniqueImages.length ? uniqueImages : newImages); // fallback if all duplicates
-      } catch {
-        if (mounted) setImages(defaultImages);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
     fetchImages();
-    return () => {
-      mounted = false;
-    };
   }, [setImages, setLoading]);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -226,7 +216,7 @@ const OrgNavBar = () => {
         </div>
 
         {/* Desktop Create button */}
-        <Popover>
+        <Popover onOpenChange={(open) => open && fetchImages()}>
           <PopoverTrigger asChild>
             <Button
               variant="primary"
@@ -300,7 +290,7 @@ const OrgNavBar = () => {
         </Popover>
 
         {/* Mobile Create button */}
-        <Popover>
+        <Popover onOpenChange={(open) => open && fetchImages()}>
           <PopoverTrigger asChild>
             <Button
               variant="primary"
