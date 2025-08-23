@@ -47,7 +47,6 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
     []
   );
 
-  // 🔹 Merge server orgs with optimistic orgs
   useEffect(() => {
     if (!isLoadedOrgList || !userMemberships?.data) return;
 
@@ -60,17 +59,14 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
       })
     );
 
-    // ✅ Filter out tombstoned orgs (deleted locally)
     let next = serverOrgs.filter((o) => !tombstones.includes(o.id));
 
-    // Always include optimistic orgs
     const optimisticOrgs = organizations.filter((o) =>
       optimisticCreates.includes(o.id)
     );
 
     next = [...next, ...optimisticOrgs];
 
-    // ✅ Add active org only if not tombstoned
     if (isLoadedOrg && activeOrganization) {
       const ao: Organization = {
         id: activeOrganization.id,
@@ -103,7 +99,6 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
       }
     }
 
-    // Clean optimistic creates once Clerk returns them
     if (optimisticCreates.length) {
       const onServer = new Set(serverOrgs.map((o) => o.id));
       const cleanedCreates = optimisticCreates.filter(
@@ -136,7 +131,6 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
           name: event.data.name,
         };
 
-        // Optimistically add org
         setOrganizations((prev) =>
           prev.some((o) => o.id === newOrg.id) ? prev : [...prev, newOrg]
         );
@@ -145,25 +139,20 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
         );
         setTombstones((prev) => prev.filter((id) => id !== newOrg.id));
 
-        // 🔹 Refresh organization list
         reloadOrgList();
       }
 
       if (event.type === "organization.deleted") {
         const deletedId: string = event.data.id;
 
-        // ✅ Immediately remove from UI
         setOrganizations((prev) => prev.filter((o) => o.id !== deletedId));
 
-        // ✅ Mark tombstone to prevent merge effect from re-adding
         setTombstones((prev) =>
           prev.includes(deletedId) ? prev : [...prev, deletedId]
         );
 
-        // ✅ Clear any optimistic create with same id
         setOptimisticCreates((prev) => prev.filter((id) => id !== deletedId));
 
-        // 🔹 Refresh organization list
         reloadOrgList();
       }
     });

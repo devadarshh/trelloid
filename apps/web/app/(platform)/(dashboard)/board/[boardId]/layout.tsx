@@ -26,7 +26,7 @@ const BoardIdLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="fixed inset-0 bg-black/10 -z-10" />
 
       <BoardNavBar />
-      <main className="relative pt-28 w-full max-w-full overflow-x-auto overflow-y-hidden">
+      <main className="relative pt-34 w-full max-w-full overflow-x-auto overflow-y-hidden">
         {children}
       </main>
     </div>

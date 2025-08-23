@@ -50,9 +50,9 @@ const ListOptions = ({ data }: ListOptionsProps) => {
       );
 
       toast.success("List copied successfully");
-      triggerRefreshLists(true);
-      triggerRefreshBoards(true);
-      triggerRefreshCards(true);
+      triggerRefreshLists();
+      triggerRefreshBoards();
+      triggerRefreshCards();
       closeRef.current?.click();
     } catch {
       toast.error("Error copying list");
@@ -71,7 +71,7 @@ const ListOptions = ({ data }: ListOptionsProps) => {
         withCredentials: true,
       });
       toast.success("List deleted successfully");
-      triggerRefreshLists(true);
+      triggerRefreshLists();
       closeRef.current?.click();
     } catch {
       toast.error("Error deleting list");

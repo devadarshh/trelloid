@@ -25,10 +25,8 @@ export const ListItem = ({ data, index }: ListItemProps) => {
             {...provided.dragHandleProps}
             className="w-full rounded-md bg-[#f1f2f4] shadow-md pb-2 cursor-pointer"
           >
-            {/* List header */}
             <ListHeader data={data} />
 
-            {/* Cards droppable area */}
             <Droppable droppableId={data.id} type="card">
               {(provided) => (
                 <ol
@@ -47,7 +45,6 @@ export const ListItem = ({ data, index }: ListItemProps) => {
               )}
             </Droppable>
 
-            {/* Add card form */}
             <CardForm listId={data.id} />
           </div>
         </li>

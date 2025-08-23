@@ -89,7 +89,6 @@ export const NavItem = ({
   );
 };
 
-// Skeleton Loader
 NavItem.Skeleton = function SkeletonNavItem() {
   return (
     <div className="flex items-center gap-x-2 cursor-default">

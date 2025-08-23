@@ -2,10 +2,6 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { generateLogMessage } from "@/lib/generated-log-message";
 import { format } from "date-fns";
 
-// interface ActivityItemProps {
-//   data: AuditLog;
-// }
-
 export const ActivityItem = ({ data }: any) => {
   return (
     <li className="flex items-center gap-x-2">

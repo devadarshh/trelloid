@@ -57,7 +57,6 @@ export const decreaseAvailableCount = async (orgId: string) => {
       });
     }
   } else {
-    // First board created
     await prisma.orgLimit.create({ data: { orgId, count: 1 } });
   }
 };

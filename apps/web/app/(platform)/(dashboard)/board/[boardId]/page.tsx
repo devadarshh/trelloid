@@ -31,8 +31,6 @@ export default function BoardIdPage({ params }: BoardIdProps) {
   useEffect(() => {
     if (!boardId) return;
 
-    let isMounted = true;
-
     const fetchAllLists = async () => {
       try {
         setLoading(true);
@@ -46,28 +44,21 @@ export default function BoardIdPage({ params }: BoardIdProps) {
           }
         );
 
-        if (isMounted) {
-          setLists(response.data.data);
-        }
+        setLists(response.data.data);
       } catch (error: any) {
         const message =
           error?.response?.data?.message ||
           error.message ||
           "Error fetching lists";
-        if (isMounted) {
-          toast.error(message);
-          console.error(message);
-        }
+
+        toast.error(message);
+        console.error(message);
       } finally {
-        if (isMounted) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchAllLists();
-
-    return () => {
-      isMounted = false;
-    };
   }, [boardId, refreshLists, refreshCards, getToken, setLists, setLoading]);
 
   return (

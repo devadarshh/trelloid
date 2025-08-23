@@ -76,7 +76,6 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
           order: index,
         })
       );
-      // map is for reordering each list based on order
       setOrderedData(items);
       executeUpdateListOrder(items, boardId);
     }

@@ -15,7 +15,7 @@ interface AuditLog {
 }
 
 export const ActivityList: React.FC & { Skeleton: React.FC } = () => {
-  const { getToken, orgId } = useAuth(); // Clerk auth
+  const { getToken, orgId } = useAuth(); 
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
 

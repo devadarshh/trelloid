@@ -104,7 +104,6 @@ export const Actions: React.FC<ActionsProps> & { Skeleton: React.FC } = ({
   );
 };
 
-// Skeleton loader for loading state
 Actions.Skeleton = function ActionsSkeleton() {
   return (
     <div className="space-y-2 mt-2">

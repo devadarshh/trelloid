@@ -31,7 +31,7 @@ interface ImageStore {
 }
 
 export const useImageStore = create<ImageStore>((set) => ({
-  images: [], // 👈 start with defaults
+  images: [],
   setImages: (imgs) => set({ images: imgs }),
 }));
 

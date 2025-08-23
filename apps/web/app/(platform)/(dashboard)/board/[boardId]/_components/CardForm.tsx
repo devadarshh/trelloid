@@ -67,7 +67,7 @@ const CardForm = ({ listId }: CardFormProps) => {
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
       toast.success(`Card "${title}" created`);
-      triggerRefreshCards(true);
+      triggerRefreshCards();
       setTitle("");
       disableEditing();
     } catch {

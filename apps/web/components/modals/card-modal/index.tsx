@@ -6,8 +6,7 @@ import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
 import { Header } from "./Header";
 import { Actions } from "./Action";
-import { Activity } from "./Activity"; // 👈 import Activity
-
+import { Activity } from "./Activity"; 
 export const CardModal = () => {
   const id = useCardModal((state) => state.id);
   const isOpen = useCardModal((state) => state.isOpen);
