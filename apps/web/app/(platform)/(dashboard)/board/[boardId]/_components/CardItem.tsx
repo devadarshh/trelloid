@@ -1,8 +1,8 @@
 "use client";
 
-import { Card } from "@prisma/client";
 import { useCardModal } from "hooks/cardHooks/useStore";
 import { Draggable } from "@hello-pangea/dnd";
+import { Card } from "types";
 
 interface CardItemProps {
   data: Card;
@@ -20,7 +20,7 @@ const CardItem = ({ data, index }: CardItemProps) => {
           {...provided.dragHandleProps}
           ref={provided.innerRef}
           role="button"
-          tabIndex={0} 
+          tabIndex={0}
           onClick={() => cardModal.onOpen(data.id)}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
