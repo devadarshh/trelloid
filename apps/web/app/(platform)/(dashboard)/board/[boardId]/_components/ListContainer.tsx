@@ -47,7 +47,7 @@ const ListContainer: React.FC<ListContainerProps> = ({
     try {
       const token = await getToken();
       await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/cards/reorder`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/cards/reorder`
         { items, boardId },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
