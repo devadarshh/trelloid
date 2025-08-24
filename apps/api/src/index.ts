@@ -18,7 +18,7 @@ dotenv.config();
 const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://trelloid-web.vercel.app",
+  "https://trelloid-lovat.vercel.app/",
 ];
 
 app.use(
