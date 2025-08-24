@@ -10,14 +10,15 @@ import ListContainer from "./_components/ListContainer";
 import { CardModal } from "components/modals/card-modal/index";
 import { toast } from "sonner";
 
-interface BoardPageProps {
+export default function BoardIdPage({
+  params,
+  searchParams,
+}: {
   params: { boardId: string };
   searchParams?: { [key: string]: string | string[] | undefined };
-}
-
-export default function BoardIdPage({ params }: BoardPageProps) {
-  const { getToken } = useAuth();
+}) {
   const { boardId } = params;
+  const { getToken } = useAuth();
 
   const { setBoardId } = useBoardIdStore();
   const { setLoading } = useLoadingStore();
@@ -26,9 +27,7 @@ export default function BoardIdPage({ params }: BoardPageProps) {
   const { refreshCards } = useRefreshCards();
 
   useEffect(() => {
-    if (boardId) {
-      setBoardId(boardId);
-    }
+    if (boardId) setBoardId(boardId);
   }, [boardId, setBoardId]);
 
   useEffect(() => {
@@ -73,3 +72,4 @@ export default function BoardIdPage({ params }: BoardPageProps) {
     </div>
   );
 }
+
