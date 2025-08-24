@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@clerk/nextjs";
-import { List } from "@prisma/client";
 import axios from "axios";
 import {
   useBoardIdStore,
@@ -21,6 +20,7 @@ import { useRefreshList } from "hooks/listHooks/useStore";
 import { MoreHorizontal, Trash2, X } from "lucide-react";
 import { ElementRef, useRef } from "react";
 import { toast } from "sonner";
+import { List } from "types";
 
 interface ListOptionsProps {
   data: List;

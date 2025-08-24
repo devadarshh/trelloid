@@ -3,12 +3,12 @@
 import React, { ElementRef, useRef, useState } from "react";
 import ListOptions from "./ListOptions";
 import { Input } from "@/components/ui/input";
-import { List } from "@prisma/client";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { useLoadingStore } from "hooks/boardHooks/useStore";
 import axios from "axios";
 import { useCreateListStore } from "hooks/listHooks/useStore";
+import { List } from "types";
 
 interface ListHeaderProps {
   data: List;
