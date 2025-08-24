@@ -55,7 +55,7 @@ const ListHeader = ({ data }: ListHeaderProps) => {
       const token = await getToken();
 
       await axios.put(
-        `${process.env.BACKEND_URL}/api/v1/update-list`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/update-list`,
         { listId: data.id, title: updatedTitle },
         {
           headers: { Authorization: `Bearer ${token}` },

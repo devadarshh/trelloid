@@ -28,7 +28,7 @@ export const CardModal = () => {
 
         setCardLoading(true);
         const cardResponse = await axios.get(
-          `${process.env.BACKEND_URL}/api/v1/card/${id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/card/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
@@ -49,7 +49,7 @@ export const CardModal = () => {
 
         setLogsLoading(true);
         const auditResponse = await axios.get(
-          `${process.env.BACKEND_URL}/api/v1/audit-logs/card/${id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/audit-logs/card/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,

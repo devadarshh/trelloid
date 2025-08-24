@@ -55,7 +55,7 @@ const BoardTitleForm = () => {
       setLoading(true);
       const token = await getToken();
       await axios.put(
-        `${process.env.BACKEND_URL}/api/v1/update-board`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/update-board`,
         { boardId, title: updatedTitle },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );

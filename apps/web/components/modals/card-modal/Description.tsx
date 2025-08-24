@@ -62,7 +62,7 @@ const Description = ({ data }: DescriptionProps) => {
       }
 
       await axios.put(
-        `${process.env.BACKEND_URL}/api/v1/update-card`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/update-card`,
         { cardId: data.id, description: updatedDescription },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );

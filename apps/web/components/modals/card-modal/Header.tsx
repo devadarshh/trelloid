@@ -46,7 +46,7 @@ export const Header = ({ data }: any) => {
       }
 
       await axios.put(
-        `${process.env.BACKEND_URL}/api/v1/update-card`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/update-card`,
         { cardId: data?.id, title: updatedTitle },
         {
           headers: { Authorization: `Bearer ${token}` },

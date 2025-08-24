@@ -29,7 +29,7 @@ export const ActivityList: React.FC & { Skeleton: React.FC } = () => {
         if (!token) return;
 
         const response = await axios.get<{ data: AuditLog[] }>(
-          `${process.env.BACKEND_URL}/api/v1/audit-logs/org/${orgId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/audit-logs/org/${orgId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,

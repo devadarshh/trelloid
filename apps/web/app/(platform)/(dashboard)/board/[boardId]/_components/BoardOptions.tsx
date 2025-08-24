@@ -34,11 +34,14 @@ const BoardOptions = () => {
       setLoading(true);
       const token = await getToken();
 
-      await axios.delete(`${process.env.BACKEND_URL}/api/v1/delete-board`, {
-        data: { boardId },
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/delete-board`,
+        {
+          data: { boardId },
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
 
       toast.success("Board Deleted Successfully");
       triggerRefreshBoards();

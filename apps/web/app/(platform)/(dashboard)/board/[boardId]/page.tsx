@@ -10,11 +10,12 @@ import ListContainer from "./_components/ListContainer";
 import { CardModal } from "components/modals/card-modal/index";
 import { toast } from "sonner";
 
-interface BoardIdProps {
+interface BoardPageProps {
   params: { boardId: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default function BoardIdPage({ params }: BoardIdProps) {
+export default function BoardIdPage({ params }: BoardPageProps) {
   const { getToken } = useAuth();
   const { boardId } = params;
 
@@ -25,7 +26,9 @@ export default function BoardIdPage({ params }: BoardIdProps) {
   const { refreshCards } = useRefreshCards();
 
   useEffect(() => {
-    setBoardId(boardId);
+    if (boardId) {
+      setBoardId(boardId);
+    }
   }, [boardId, setBoardId]);
 
   useEffect(() => {
@@ -36,7 +39,7 @@ export default function BoardIdPage({ params }: BoardIdProps) {
         setLoading(true);
         const token = await getToken();
         const response = await axios.get(
-          `${process.env.BACKEND_URL}/api/v1/lists`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/lists`,
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { boardId },

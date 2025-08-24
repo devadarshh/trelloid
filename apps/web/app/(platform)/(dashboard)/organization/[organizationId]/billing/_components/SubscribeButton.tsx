@@ -22,7 +22,7 @@ export const SubscriptionButton: React.FC = () => {
       try {
         const token = await getToken();
         const { data } = await axios.post(
-          `${process.env.BACKEND_URL}/stripe/redirect`,
+          `${process.env.NEXT_PUBLIC_API_URL}/stripe/redirect`,
           { orgId },
           {
             headers: { Authorization: `Bearer ${token}` },

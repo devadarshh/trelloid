@@ -32,7 +32,7 @@ export const BoardList = ({ organizationId }: { organizationId: string }) => {
         setLoading(true);
 
         const response = await axios.get(
-          `${process.env.BACKEND_URL}/api/v1/boards`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/boards`,
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { orgId },

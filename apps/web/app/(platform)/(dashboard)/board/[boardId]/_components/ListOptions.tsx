@@ -41,7 +41,7 @@ const ListOptions = ({ data }: ListOptionsProps) => {
       setLoading(true);
       const token = await getToken();
       await axios.post(
-        `${process.env.BACKEND_URL}/api/v1/copy-list`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/copy-list`,
         { listId },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -65,11 +65,14 @@ const ListOptions = ({ data }: ListOptionsProps) => {
     try {
       setLoading(true);
       const token = await getToken();
-      await axios.delete(`${process.env.BACKEND_URL}/api/v1/delete-list`, {
-        data: { boardId: BoardId, listId },
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/delete-list`,
+        {
+          data: { boardId: BoardId, listId },
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
       toast.success("List deleted successfully");
       triggerRefreshLists();
       closeRef.current?.click();

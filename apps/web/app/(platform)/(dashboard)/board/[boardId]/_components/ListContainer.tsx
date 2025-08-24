@@ -31,7 +31,7 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
     try {
       const token = await getToken();
       await axios.put(
-        `${process.env.BACKEND_URL}/api/v1/lists/reorder`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/lists/reorder`,
         { items, boardId },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
@@ -44,7 +44,7 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
     try {
       const token = await getToken();
       await axios.put(
-        `${process.env.BACKEND_URL}/cards/reorder`,
+        `${process.env.NEXT_PUBLIC_API_URL}/cards/reorder`,
         { items, boardId },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );

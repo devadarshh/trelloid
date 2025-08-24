@@ -20,7 +20,7 @@ export const ProStatusProvider: React.FC<Props> = ({ organizationId }) => {
       try {
         const token = await getToken();
         const res = await axios.get(
-          `${process.env.BACKEND_URL}/api/v1/subscription-status?orgId=${organizationId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/subscription-status?orgId=${organizationId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

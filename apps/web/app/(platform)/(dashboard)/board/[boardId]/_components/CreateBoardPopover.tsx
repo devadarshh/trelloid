@@ -68,7 +68,9 @@ const CreateBoardPopover = () => {
   const fetchImages = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${process.env.BACKEND_URL}/api/images`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/images`
+      );
       const newImages: UnsplashImage[] = Array.isArray(response.data)
         ? response.data
         : defaultImages;
@@ -92,7 +94,7 @@ const CreateBoardPopover = () => {
     try {
       const token = await getToken();
       const res = await axios.get(
-        `${process.env.BACKEND_URL}/api/v1/count?orgId=${orgId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/count?orgId=${orgId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setRemaining(res.data.remaining);
@@ -131,7 +133,7 @@ const CreateBoardPopover = () => {
       const token = await getToken();
 
       await axios.post(
-        `${process.env.BACKEND_URL}/api/v1/create-board`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/create-board`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -33,7 +33,7 @@ export const Actions: React.FC<ActionsProps> & { Skeleton: React.FC } = ({
       setLoading(true);
       const token = await getToken();
       await axios.post(
-        `${process.env.BACKEND_URL}/api/v1/copy-card`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/copy-card`,
         { cardId },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
@@ -59,11 +59,14 @@ export const Actions: React.FC<ActionsProps> & { Skeleton: React.FC } = ({
         return;
       }
 
-      await axios.delete(`${process.env.BACKEND_URL}/api/v1/delete-card`, {
-        data: { cardId },
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/delete-card`,
+        {
+          data: { cardId },
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
 
       toast.success("Card deleted successfully");
       triggerRefreshLists();

@@ -55,7 +55,7 @@ export const ListForm = () => {
       setLoading(true);
       const token = await getToken();
       await axios.post(
-        `${process.env.BACKEND_URL}/api/v1/create-list`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/create-list`,
         { boardId: BoardId, title },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
