@@ -24,11 +24,7 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
   const { organization: activeOrganization, isLoaded: isLoadedOrg } =
     useOrganization();
 
-  const {
-    userMemberships,
-    isLoaded: isLoadedOrgList,
-    reload: reloadOrgList,
-  } = useOrganizationList({
+  const { userMemberships, isLoaded: isLoadedOrgList } = useOrganizationList({
     userMemberships: { infinite: true },
   });
 
@@ -50,21 +46,20 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
   useEffect(() => {
     if (!isLoadedOrgList || !userMemberships?.data) return;
 
-    const serverOrgs: Organization[] = userMemberships.data.map(
-      ({ organization }) => ({
+    // Map server organizations safely
+    const serverOrgs: Organization[] =
+      userMemberships.data.map(({ organization }) => ({
         id: organization.id,
         slug: organization.slug ?? "",
         imageUrl: organization.imageUrl,
         name: organization.name,
-      })
-    );
+      })) ?? [];
 
-    let next = serverOrgs.filter((o) => !tombstones.includes(o.id));
+    let next: any[] = serverOrgs.filter((o) => !tombstones.includes(o.id));
 
     const optimisticOrgs = organizations.filter((o) =>
       optimisticCreates.includes(o.id)
     );
-
     next = [...next, ...optimisticOrgs];
 
     if (isLoadedOrg && activeOrganization) {
@@ -83,15 +78,12 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
       organizations.length === next.length &&
       organizations.every((o, i) => o.id === next[i].id);
 
-    if (!same) {
-      setOrganizations(next);
-    }
+    if (!same) setOrganizations(next);
 
     if (tombstones.length) {
       const stillOnServer = new Set(serverOrgs.map((o) => o.id));
       const cleaned = tombstones.filter((id) => stillOnServer.has(id));
       const confirmedGone = tombstones.filter((id) => !stillOnServer.has(id));
-
       if (confirmedGone.length) {
         setTombstones((prev) =>
           prev.filter((id) => !confirmedGone.includes(id))
@@ -99,6 +91,7 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
       }
     }
 
+    // Clean optimistic creates
     if (optimisticCreates.length) {
       const onServer = new Set(serverOrgs.map((o) => o.id));
       const cleanedCreates = optimisticCreates.filter(
@@ -130,7 +123,6 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
           imageUrl: event.data.imageUrl,
           name: event.data.name,
         };
-
         setOrganizations((prev) =>
           prev.some((o) => o.id === newOrg.id) ? prev : [...prev, newOrg]
         );
@@ -138,33 +130,20 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
           prev.includes(newOrg.id) ? prev : [...prev, newOrg.id]
         );
         setTombstones((prev) => prev.filter((id) => id !== newOrg.id));
-
-        reloadOrgList();
       }
 
       if (event.type === "organization.deleted") {
         const deletedId: string = event.data.id;
-
         setOrganizations((prev) => prev.filter((o) => o.id !== deletedId));
-
         setTombstones((prev) =>
           prev.includes(deletedId) ? prev : [...prev, deletedId]
         );
-
         setOptimisticCreates((prev) => prev.filter((id) => id !== deletedId));
-
-        reloadOrgList();
       }
     });
 
     return () => unsubscribe();
-  }, [
-    addListener,
-    reloadOrgList,
-    setOrganizations,
-    setOptimisticCreates,
-    setTombstones,
-  ]);
+  }, [addListener, setOrganizations, setOptimisticCreates, setTombstones]);
 
   const defaultAccordionValue: string[] = Object.keys(expanded).filter(
     (key) => expanded[key]

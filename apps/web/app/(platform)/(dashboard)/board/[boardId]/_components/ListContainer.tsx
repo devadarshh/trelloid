@@ -20,7 +20,10 @@ function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
   return result;
 }
 
-const ListContainer = ({ data, boardId }: ListContainerProps) => {
+const ListContainer: React.FC<ListContainerProps> = ({
+  data,
+  boardId,
+}: ListContainerProps) => {
   const [orderedData, setOrderedData] = useState<ListWithCards[]>(data);
   const { getToken } = useAuth();
 

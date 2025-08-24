@@ -4,7 +4,7 @@ import { ProStatusProvider } from "./_components/ProStatusProvider";
 
 interface LayoutProps {
   children: React.ReactNode;
-  params: { organizationId: string };
+  params: any;
 }
 
 const OrganizationIdLayout: React.FC<LayoutProps> = ({ children, params }) => {

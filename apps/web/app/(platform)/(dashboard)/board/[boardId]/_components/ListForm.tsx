@@ -12,8 +12,10 @@ import { useCreateList, useRefreshList } from "hooks/listHooks/useStore";
 import axios from "axios";
 import { toast } from "sonner";
 import { ListFormschema } from "schema/validationSchema";
-
-export const ListForm = () => {
+interface ListFormProps {
+  boardId: string;
+}
+export const ListForm: React.FC<ListFormProps> = ({ boardId }) => {
   const formRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<ElementRef<"input">>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -74,7 +76,7 @@ export const ListForm = () => {
   };
 
   useEventListener("keydown", onKeyDown);
-  useOnClickOutside(formRef, disableEditing);
+  useOnClickOutside(formRef as any, disableEditing);
 
   useEffect(() => {
     if (title) validateTitle(title);

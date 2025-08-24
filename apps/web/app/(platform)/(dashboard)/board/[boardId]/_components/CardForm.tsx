@@ -82,7 +82,7 @@ const CardForm = ({ listId }: CardFormProps) => {
   };
 
   useEventListener("keydown", onKeyDown);
-  useOnClickOutside(formRef, disableEditing);
+  useOnClickOutside(formRef as any, disableEditing);
 
   useEffect(() => {
     if (title) validateTitle(title);

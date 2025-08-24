@@ -7,7 +7,7 @@ import { Info } from "./_components/Info";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
 
 interface OrganizationIdProps {
-  params: { organizationId: string };
+  params: any;
 }
 
 const OrganizationIdPage: React.FC<OrganizationIdProps> = ({ params }) => {

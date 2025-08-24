@@ -1,11 +1,11 @@
-"use client"
+"use client";
 import { Separator } from "@/components/ui/separator";
 import { Info } from "../_components/Info";
 import { SubscriptionButton } from "./_components/SubscribeButton";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
 import { useEffect } from "react";
 
-const BillingPage = ({ params }: { params: { organizationId: string } }) => {
+const BillingPage = ({ params }: any) => {
   const { organizationId } = params;
   const { setOrgId } = useOrganizationIdStore();
 
