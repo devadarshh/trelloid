@@ -26,7 +26,6 @@ export const syncOrganizationInDb = async (req: Request, res: Response) => {
       signingSecret: process.env.CLERK_WEBHOOK_SECRET_ORG,
     });
 
-    console.log(" Verified Clerk webhook:", evt.type);
 
     if (evt.type === "organization.created") {
       const data = OrgCreatedSchema.parse(evt.data);

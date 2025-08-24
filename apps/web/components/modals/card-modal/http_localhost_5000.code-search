@@ -1,0 +1,131 @@
+# Query: http://localhost:5000
+# ContextLines: 1
+
+27 results - 20 files
+
+apps/web/.env:
+   9  NEXT_PUBLIC_APP_URL=http://localhost:3000
+  10: BACKEND_URL=http://localhost:5000
+
+apps/web/app/(platform)/(dashboard)/_components/OrgNavBar.tsx:
+   75        const res = await axios.get(
+   76:         `${process.env.BACKEND_URL}/api/v1/count?orgId=${orgId}`,
+   77          { headers: { Authorization: `Bearer ${token}` } }
+
+   90        setLoading(true);
+   91:       const response = await axios.get(`${process.env.BACKEND_URL}/api/images`);
+   92        const newImages: UnsplashImage[] = Array.isArray(response.data)
+
+  134  
+  135:       await axios.post(`${process.env.BACKEND_URL}/api/v1/create-board`, formData, {
+  136          headers: { Authorization: `Bearer ${token}` },
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/page.tsx:
+  38          const response = await axios.get(
+  39:           `${process.env.BACKEND_URL}/api/v1/lists`,
+  40            {
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/_components/BoardList.tsx:
+  34          const response = await axios.get(
+  35:           `${process.env.BACKEND_URL}/api/v1/boards`,
+  36            {
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/_components/BoardOptions.tsx:
+  37        await axios.delete(
+  38:         `${process.env.BACKEND_URL}/api/v1/delete-board`,
+  39          {
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/_components/BoardTitleForm.tsx:
+  57        await axios.put(
+  58:         `${process.env.BACKEND_URL}/api/v1/update-board`,
+  59          { boardId, title: updatedTitle },
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/_components/CardForm.tsx:
+  64        await axios.post(
+  65:         `${process.env.BACKEND_URL}/api/v1/create-card`,
+  66          { listId, title },
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/_components/CreateBoardPopover.tsx:
+   70        setLoading(true);
+   71:       const response = await axios.get(`${process.env.BACKEND_URL}/api/images`);
+   72        const newImages: UnsplashImage[] = Array.isArray(response.data)
+
+   94        const res = await axios.get(
+   95:         `${process.env.BACKEND_URL}/api/v1/count?orgId=${orgId}`,
+   96          { headers: { Authorization: `Bearer ${token}` } }
+
+  132  
+  133:       await axios.post(`${process.env.BACKEND_URL}/api/v1/create-board`, formData, {
+  134          headers: { Authorization: `Bearer ${token}` },
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/_components/ListContainer.tsx:
+  22  
+  23: const BASE_URL = `${process.env.BACKEND_URL}/api/v1`;
+  24  
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/_components/ListForm.tsx:
+  57        await axios.post(
+  58:         `${process.env.BACKEND_URL}/api/v1/create-list`,
+  59          { boardId: BoardId, title },
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/_components/ListHeader.tsx:
+  57        await axios.put(
+  58:         `${process.env.BACKEND_URL}/api/v1/update-list`,
+  59          { listId: data.id, title: updatedTitle },
+
+apps/web/app/(platform)/(dashboard)/board/[boardId]/_components/ListOptions.tsx:
+  43        await axios.post(
+  44:         `${process.env.BACKEND_URL}/api/v1/copy-list`,
+  45          { listId },
+
+  67        const token = await getToken();
+  68:       await axios.delete(`${process.env.BACKEND_URL}/api/v1/delete-list`, {
+  69          data: { boardId: BoardId, listId },
+
+apps/web/app/(platform)/(dashboard)/organization/[organizationId]/_components/ProStatusProvider.tsx:
+  22          const res = await axios.get(
+  23:           `${process.env.BACKEND_URL}/api/v1/subscription-status?orgId=${organizationId}`,
+  24            {
+
+apps/web/app/(platform)/(dashboard)/organization/[organizationId]/activity/_components/ActivityList.tsx:
+  31          const response = await axios.get<{ data: AuditLog[] }>(
+  32:           `${process.env.BACKEND_URL}/api/v1/audit-logs/org/${orgId}`,
+  33            {
+
+apps/web/app/(platform)/(dashboard)/organization/[organizationId]/billing/_components/SubscribeButton.tsx:
+  24          const { data } = await axios.post(
+  25:           `${process.env.BACKEND_URL}/stripe/redirect`,
+  26            { orgId },
+
+apps/web/components/modals/pro-modal.tsx:
+  30        const res = await axios.post(
+  31:         `${process.env.BACKEND_URL}/stripe/redirect`,
+  32          { orgId },
+
+apps/web/components/modals/card-modal/Action.tsx:
+  35        await axios.post(
+  36:         `${process.env.BACKEND_URL}/api/v1/copy-card`,
+  37          { cardId },
+
+  61  
+  62:       await axios.delete(`${process.env.BACKEND_URL}/api/v1/delete-card`, {
+  63          data: { cardId },
+
+apps/web/components/modals/card-modal/Description.tsx:
+  64        await axios.put(
+  65:         `${process.env.BACKEND_URL}/api/v1/update-card`,
+  66          { cardId: data.id, description: updatedDescription },
+
+apps/web/components/modals/card-modal/Header.tsx:
+  48        await axios.put(
+  49:         `${process.env.BACKEND_URL}/api/v1/update-card`,
+  50          { cardId: data?.id, title: updatedTitle },
+
+apps/web/components/modals/card-modal/index.tsx:
+  30          const cardResponse = await axios.get(
+  31:           `${process.env.BACKEND_URL}/api/v1/card/${id}`,
+  32            {
+
+  51          const auditResponse = await axios.get(
+  52:           `${process.env.BACKEND_URL}/api/v1/audit-logs/card/${id}`,
+  53            {

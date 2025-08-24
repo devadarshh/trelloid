@@ -6,7 +6,7 @@ import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
 import { Header } from "./Header";
 import { Actions } from "./Action";
-import { Activity } from "./Activity"; 
+import { Activity } from "./Activity";
 export const CardModal = () => {
   const id = useCardModal((state) => state.id);
   const isOpen = useCardModal((state) => state.isOpen);
@@ -28,7 +28,7 @@ export const CardModal = () => {
 
         setCardLoading(true);
         const cardResponse = await axios.get(
-          `http://localhost:5000/api/v1/card/${id}`,
+          `${process.env.BACKEND_URL}/api/v1/card/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
@@ -49,13 +49,13 @@ export const CardModal = () => {
 
         setLogsLoading(true);
         const auditResponse = await axios.get(
-          `http://localhost:5000/api/v1/audit-logs/card/${id}`,
+          `${process.env.BACKEND_URL}/api/v1/audit-logs/card/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
           }
         );
-        console.log("Audit Response data", auditResponse.data.data);
+
         setAuditLogsData(auditResponse.data.data);
       } catch (error: any) {
         console.error("Error fetching logs:", error.response?.data || error);

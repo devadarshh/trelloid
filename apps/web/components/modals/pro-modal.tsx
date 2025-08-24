@@ -28,7 +28,7 @@ export const ProModal = () => {
       setIsLoading(true);
 
       const res = await axios.post(
-        `http://localhost:5000/stripe/redirect`,
+        `${process.env.BACKEND_URL}/stripe/redirect`,
         { orgId },
         {
           headers: { Authorization: `Bearer ${token}` },

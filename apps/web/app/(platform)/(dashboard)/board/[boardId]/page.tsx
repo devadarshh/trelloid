@@ -36,7 +36,7 @@ export default function BoardIdPage({ params }: BoardIdProps) {
         setLoading(true);
         const token = await getToken();
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/v1/lists`,
+          `${process.env.BACKEND_URL}/api/v1/lists`,
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { boardId },

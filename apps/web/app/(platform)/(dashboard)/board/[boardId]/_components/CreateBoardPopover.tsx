@@ -68,7 +68,7 @@ const CreateBoardPopover = () => {
   const fetchImages = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/images");
+      const response = await axios.get(`${process.env.BACKEND_URL}/api/images`);
       const newImages: UnsplashImage[] = Array.isArray(response.data)
         ? response.data
         : defaultImages;
@@ -92,7 +92,7 @@ const CreateBoardPopover = () => {
     try {
       const token = await getToken();
       const res = await axios.get(
-        `http://localhost:5000/api/v1/count?orgId=${orgId}`,
+        `${process.env.BACKEND_URL}/api/v1/count?orgId=${orgId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setRemaining(res.data.remaining);
@@ -130,15 +130,18 @@ const CreateBoardPopover = () => {
       setLoading(true);
       const token = await getToken();
 
-      await axios.post("http://localhost:5000/api/v1/create-board", formData, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
+      await axios.post(
+        `${process.env.BACKEND_URL}/api/v1/create-board`,
+        formData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
 
       triggerRefreshBoards();
       await fetchLimit();
 
-      // Reset form
       setTitle("");
       setImageId("");
       setImageThumbUrl("");

@@ -55,11 +55,11 @@ export const ListForm = () => {
       setLoading(true);
       const token = await getToken();
       await axios.post(
-        "http://localhost:5000/api/v1/create-list",
+        `${process.env.BACKEND_URL}/api/v1/create-list`,
         { boardId: BoardId, title },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
-      triggerRefreshLists(true);
+      triggerRefreshLists();
       toast.success(`List "${title}" created`);
       disableEditing();
     } catch {

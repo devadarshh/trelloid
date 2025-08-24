@@ -41,7 +41,7 @@ const ListOptions = ({ data }: ListOptionsProps) => {
       setLoading(true);
       const token = await getToken();
       await axios.post(
-        "http://localhost:5000/api/v1/copy-list",
+        `${process.env.BACKEND_URL}/api/v1/copy-list`,
         { listId },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -65,7 +65,7 @@ const ListOptions = ({ data }: ListOptionsProps) => {
     try {
       setLoading(true);
       const token = await getToken();
-      await axios.delete("http://localhost:5000/api/v1/delete-list", {
+      await axios.delete(`${process.env.BACKEND_URL}/api/v1/delete-list`, {
         data: { boardId: BoardId, listId },
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,

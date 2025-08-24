@@ -33,7 +33,7 @@ export const Actions: React.FC<ActionsProps> & { Skeleton: React.FC } = ({
       setLoading(true);
       const token = await getToken();
       await axios.post(
-        "http://localhost:5000/api/v1/copy-card",
+        `${process.env.BACKEND_URL}/api/v1/copy-card`,
         { cardId },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
@@ -59,7 +59,7 @@ export const Actions: React.FC<ActionsProps> & { Skeleton: React.FC } = ({
         return;
       }
 
-      await axios.delete("http://localhost:5000/api/v1/delete-card", {
+      await axios.delete(`${process.env.BACKEND_URL}/api/v1/delete-card`, {
         data: { cardId },
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,

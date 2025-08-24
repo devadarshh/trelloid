@@ -20,8 +20,6 @@ function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
   return result;
 }
 
-const BASE_URL = "http://localhost:5000/api/v1";
-
 const ListContainer = ({ data, boardId }: ListContainerProps) => {
   const [orderedData, setOrderedData] = useState<ListWithCards[]>(data);
   const { getToken } = useAuth();
@@ -33,7 +31,7 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
     try {
       const token = await getToken();
       await axios.put(
-        `${BASE_URL}/lists/reorder`,
+        `${process.env.BACKEND_URL}/api/v1/lists/reorder`,
         { items, boardId },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
@@ -46,7 +44,7 @@ const ListContainer = ({ data, boardId }: ListContainerProps) => {
     try {
       const token = await getToken();
       await axios.put(
-        `${BASE_URL}/cards/reorder`,
+        `${process.env.BACKEND_URL}/cards/reorder`,
         { items, boardId },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );

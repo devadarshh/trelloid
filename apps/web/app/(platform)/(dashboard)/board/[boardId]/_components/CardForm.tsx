@@ -62,7 +62,7 @@ const CardForm = ({ listId }: CardFormProps) => {
     try {
       const token = await getToken();
       await axios.post(
-        "http://localhost:5000/api/v1/create-card",
+        `${process.env.BACKEND_URL}/api/v1/create-card`,
         { listId, title },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );

@@ -93,8 +93,6 @@ export const handleGetAvailableCount = async (req: Request, res: Response) => {
     const count = orgLimit.count;
     const remaining = Math.max(MAX_FREE_BOARDS - count, 0);
 
-    console.log("Available count:", { orgId, count, remaining });
-
     return res.status(200).json({
       success: true,
       count,

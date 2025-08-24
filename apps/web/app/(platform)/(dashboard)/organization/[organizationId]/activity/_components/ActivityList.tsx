@@ -15,7 +15,7 @@ interface AuditLog {
 }
 
 export const ActivityList: React.FC & { Skeleton: React.FC } = () => {
-  const { getToken, orgId } = useAuth(); 
+  const { getToken, orgId } = useAuth();
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +29,7 @@ export const ActivityList: React.FC & { Skeleton: React.FC } = () => {
         if (!token) return;
 
         const response = await axios.get<{ data: AuditLog[] }>(
-          `http://localhost:5000/api/v1/audit-logs/org/${orgId}`,
+          `${process.env.BACKEND_URL}/api/v1/audit-logs/org/${orgId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,

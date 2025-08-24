@@ -22,7 +22,7 @@ export const SubscriptionButton: React.FC = () => {
       try {
         const token = await getToken();
         const { data } = await axios.post(
-          "http://localhost:5000/stripe/redirect",
+          `${process.env.BACKEND_URL}/stripe/redirect`,
           { orgId },
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -41,7 +41,6 @@ export const SubscriptionButton: React.FC = () => {
       proModal.onOpen();
     }
   };
-  console.log("org id in billing page is", orgId);
   return (
     <Button
       variant="primary"
