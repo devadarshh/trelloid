@@ -25,6 +25,7 @@
     "@repo/ui": "*",
     "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/vite": "^4.1.11",
+    "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -40,10 +41,10 @@
     "stripe": "^18.4.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
+    "tw-animate-css": "^1.3.7",
     "usehooks-ts": "^3.1.1",
     "yup": "^1.7.0",
-    "zustand": "^5.0.7",
-    "tw-animate-css": "^1.3.7"
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
