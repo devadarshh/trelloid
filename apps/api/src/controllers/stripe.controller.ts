@@ -16,19 +16,9 @@ export const stripeRedirect = async (req: Request, res: Response) => {
     if (!authUser) return res.status(401).json({ error: "Unauthorized" });
 
     const user = await clerkClient.users.getUser(authUser);
-    const email = user.emailAddresses[0]?.emailAddress;
-    if (!email) {
-      return res.status(400).json({ error: "User does not have an email" });
-    }
+    const email = user.emailAddresses[0].emailAddress;
 
-    const frontendBase = process.env.FRONTEND_URL;
-    if (!frontendBase) {
-      return res
-        .status(500)
-        .json({ error: "FRONTEND_URL not set in environment" });
-    }
-
-    const frontendUrl = `${frontendBase.replace(/\/$/, "")}/organization/${orgId}`;
+    const frontendUrl = `${process.env.FRONTEND_URL}/organization/${orgId}`;
     let url = "";
 
     const orgSubscription = await prisma.orgSubscription.findUnique({
@@ -65,6 +55,7 @@ export const stripeRedirect = async (req: Request, res: Response) => {
         ],
         metadata: { orgId },
       });
+
       url = stripeSession.url!;
     }
 
