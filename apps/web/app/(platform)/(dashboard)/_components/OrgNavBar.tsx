@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState, ElementRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Check, Loader2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,7 +27,6 @@ import {
   useBoardLimitStore,
   useCreateBoardStore,
   useImageStore,
-  useLoadingStore,
   useRefreshBoard,
 } from "hooks/boardHooks/useStore";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
@@ -38,22 +37,32 @@ import {
 } from "schema/validationSchema";
 import { MobileSidebar } from "./MobileSideBar";
 
-type UnsplashImage = {
+export type UnsplashImage = {
   id: string;
   urls: { thumb: string; full?: string };
   links: { html: string };
   user: { name: string };
 };
 
-const OrgNavBar = () => {
-  const [isLoading, setLoading] = useState(false);
+interface BoardLimitResponse {
+  remaining: number;
+}
+interface CreateBoardResponse {
+  id: string;
+  title: string;
+  image: string;
+}
+
+export const OrgNavBar: React.FC = () => {
   const { images, setImages } = useImageStore();
   const { orgId } = useOrganizationIdStore();
   const { getToken } = useAuth();
   const { triggerRefreshBoards } = useRefreshBoard();
-  const closeRef = useRef<ElementRef<"button">>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const { setRemaining } = useBoardLimitStore();
+  const [isLoading, setLoading] = useState(false);
+  const desktopPopoverCloseRef = useRef<HTMLButtonElement | null>(null);
+  const mobilePopoverCloseRef = useRef<HTMLButtonElement | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const {
     title,
@@ -72,7 +81,7 @@ const OrgNavBar = () => {
     if (!orgId) return;
     try {
       const token = await getToken();
-      const res = await axios.get(
+      const res = await axios.get<BoardLimitResponse>(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/count?orgId=${orgId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,15 +92,17 @@ const OrgNavBar = () => {
     }
   };
   useEffect(() => {
-    if (orgId) fetchLimit();
+    if (orgId) void fetchLimit();
   }, [orgId]);
+
   const fetchImages = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
+      const response = await axios.get<UnsplashImage[]>(
         `${process.env.NEXT_PUBLIC_API_URL}/api/images`
       );
-      const newImages: UnsplashImage[] = Array.isArray(response.data)
+
+      const newImages = Array.isArray(response.data)
         ? response.data
         : defaultImages;
 
@@ -99,19 +110,28 @@ const OrgNavBar = () => {
       const uniqueImages = newImages.filter((img) => !existingIds.has(img.id));
 
       setImages(uniqueImages.length ? uniqueImages : newImages);
-    } catch {
+    } catch (err) {
+      if (!(err instanceof AxiosError && err.code === "ERR_CANCELED")) {
+        toast.error("Failed to load images");
+      }
       setImages(defaultImages);
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    fetchImages();
-  }, [setImages, setLoading]);
+    void fetchImages();
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+
+    if (!orgId) {
+      toast.error("Org Id is missing");
+      return;
+    }
 
     if (!imageId) {
       setErrors({ imageId: "Please select a board image" });
@@ -134,7 +154,7 @@ const OrgNavBar = () => {
       setLoading(true);
       const token = await getToken();
 
-      await axios.post(
+      await axios.post<CreateBoardResponse>(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/create-board`,
         formData,
         {
@@ -152,18 +172,21 @@ const OrgNavBar = () => {
       setImageFullUrl("");
       setImageLinkHTML("");
 
-      closeRef.current?.click();
+      desktopPopoverCloseRef.current?.click();
+      mobilePopoverCloseRef.current?.click();
       toast.success("Board created successfully!");
-    } catch (err: any) {
-      if (err.name === "ValidationError") {
+    } catch (err: unknown) {
+      if (err instanceof Error && (err as any).name === "ValidationError") {
         const newErrors: Record<string, string> = {};
-        err.inner.forEach((e: any) => {
+        (err as any).inner.forEach((e: any) => {
           if (e.path) newErrors[e.path] = e.message;
         });
         setErrors(newErrors);
+      } else if (err instanceof AxiosError) {
+        toast.error(err.response?.data?.message || "Error creating board");
       } else {
-        console.error(err.message || "Error creating board");
-        toast.error(err.message || "Error creating board");
+        console.error(err);
+        toast.error("Unexpected error creating board");
       }
     } finally {
       setLoading(false);
@@ -172,7 +195,7 @@ const OrgNavBar = () => {
 
   const renderImageGrid = () => (
     <div className="grid grid-cols-3 gap-2 mb-2">
-      {images.map((image: UnsplashImage) => (
+      {images.map((image) => (
         <div
           key={image.id}
           className={cn(
@@ -241,7 +264,7 @@ const OrgNavBar = () => {
             <div className="text-sm font-medium text-center text-neutral-600 pb-4 cursor-default">
               Create board
             </div>
-            <PopoverClose ref={closeRef} asChild>
+            <PopoverClose ref={desktopPopoverCloseRef} asChild>
               <Button
                 className="cursor-pointer h-auto w-auto p-2 absolute top-2 right-2 text-neutral-600"
                 variant="ghost"
@@ -310,7 +333,7 @@ const OrgNavBar = () => {
             <div className="text-sm font-medium text-center text-neutral-600 pb-4 cursor-default">
               Create board
             </div>
-            <PopoverClose ref={closeRef} asChild>
+            <PopoverClose ref={mobilePopoverCloseRef} asChild>
               <Button
                 className="cursor-pointer h-auto w-auto p-2 absolute top-2 right-2 text-neutral-600"
                 variant="ghost"
@@ -394,5 +417,3 @@ const OrgNavBar = () => {
     </nav>
   );
 };
-
-export default OrgNavBar;

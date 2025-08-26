@@ -1,4 +1,4 @@
-import OrgNavBar from "app/(platform)/(dashboard)/_components/OrgNavBar";
+import { OrgNavBar } from "app/(platform)/(dashboard)/_components/OrgNavBar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
