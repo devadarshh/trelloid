@@ -28,20 +28,36 @@ interface NavItemProps {
   onExpand: (id: string) => void;
 }
 
-export const NavItem = ({
+export const NavItem: React.FC<NavItemProps> & { Skeleton: React.FC } = ({
   isExpanded,
   isActive,
   organization,
   onExpand,
-}: NavItemProps) => {
+}) => {
   const router = useRouter();
   const pathname = usePathname();
 
   const routes = [
-    { label: "Boards", icon: <Layout className="h-4 w-4 mr-2" />, href: `/organization/${organization.id}` },
-    { label: "Activity", icon: <Activity className="h-4 w-4 mr-2" />, href: `/organization/${organization.id}/activity` },
-    { label: "Settings", icon: <Settings className="h-4 w-4 mr-2" />, href: `/organization/${organization.id}/settings` },
-    { label: "Billing", icon: <CreditCard className="h-4 w-4 mr-2" />, href: `/organization/${organization.id}/billing` },
+    {
+      label: "Boards",
+      icon: <Layout className="h-4 w-4 mr-2" />,
+      href: `/organization/${organization.id}`,
+    },
+    {
+      label: "Activity",
+      icon: <Activity className="h-4 w-4 mr-2" />,
+      href: `/organization/${organization.id}/activity`,
+    },
+    {
+      label: "Settings",
+      icon: <Settings className="h-4 w-4 mr-2" />,
+      href: `/organization/${organization.id}/settings`,
+    },
+    {
+      label: "Billing",
+      icon: <CreditCard className="h-4 w-4 mr-2" />,
+      href: `/organization/${organization.id}/billing`,
+    },
   ];
 
   const onClick = (href: string) => router.push(href);
@@ -58,9 +74,10 @@ export const NavItem = ({
         <div className="flex items-center gap-x-2">
           <div className="w-7 h-7 relative cursor-pointer">
             <Image
-              fill
               src={organization.imageUrl}
               alt={organization.name}
+              fill
+              sizes="28px"
               className="rounded-sm object-cover"
             />
           </div>
