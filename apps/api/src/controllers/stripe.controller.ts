@@ -101,7 +101,6 @@ export const stripeWebhook = async (req: Request, res: Response) => {
     const stripeCurrentPeriodEnd = (subscription as any).current_period_end
       ? new Date((subscription as any).current_period_end * 1000)
       : null;
-
     if (event.type === "checkout.session.completed") {
       await prisma.orgSubscription.create({
         data: {

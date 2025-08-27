@@ -85,9 +85,9 @@ const CreateBoardPopover = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchImages();
-  }, [setImages]);
+  // useEffect(() => {
+  //   fetchImages();
+  // }, [setImages]);
 
   const fetchLimit = async () => {
     if (!orgId) return;

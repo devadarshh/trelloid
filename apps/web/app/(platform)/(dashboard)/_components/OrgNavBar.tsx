@@ -120,9 +120,9 @@ export const OrgNavBar: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    void fetchImages();
-  }, []);
+  // useEffect(() => {
+  //   void fetchImages();
+  // }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

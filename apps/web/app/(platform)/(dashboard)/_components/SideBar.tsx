@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useLocalStorage } from "usehooks-ts";
 import { useOrganization, useOrganizationList, useClerk } from "@clerk/nextjs";
+
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion } from "@/components/ui/accordion";
@@ -14,6 +15,24 @@ import { NavItem, Organization } from "./NavItem";
 interface SidebarProps {
   storageKey?: string;
 }
+type ClerkOrgCreatedEvent = {
+  type: "organization.created";
+  data: {
+    id: string;
+    slug: string | null;
+    imageUrl: string;
+    name: string;
+  };
+};
+
+type ClerkOrgDeletedEvent = {
+  type: "organization.deleted";
+  data: {
+    id: string;
+  };
+};
+
+type ClerkEvent = ClerkOrgCreatedEvent | ClerkOrgDeletedEvent;
 
 export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
   const [expanded, setExpanded] = useLocalStorage<Record<string, boolean>>(
@@ -55,13 +74,16 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
         name: organization.name,
       })) ?? [];
 
-    let next: any[] = serverOrgs.filter((o) => !tombstones.includes(o.id));
+    let next: Organization[] = serverOrgs.filter(
+      (o) => !tombstones.includes(o.id)
+    );
 
     const optimisticOrgs = organizations.filter((o) =>
       optimisticCreates.includes(o.id)
     );
     next = [...next, ...optimisticOrgs];
 
+    // this shows active org despite being deleted in tombstoned org
     if (isLoadedOrg && activeOrganization) {
       const ao: Organization = {
         id: activeOrganization.id,
@@ -74,12 +96,16 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
       }
     }
 
+    //prevents unnecessary re-renders when nothing changed
     const same =
       organizations.length === next.length &&
-      organizations.every((o, i) => o.id === next[i].id);
+      organizations.every(
+        (o, i) => next[i] !== undefined && o.id === next[i]!.id
+      );
 
     if (!same) setOrganizations(next);
 
+    // clean tobstone org if not on server org
     if (tombstones.length) {
       const stillOnServer = new Set(serverOrgs.map((o) => o.id));
       const cleaned = tombstones.filter((id) => stillOnServer.has(id));
@@ -91,7 +117,7 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
       }
     }
 
-    // Clean optimistic creates
+    // Clean optimistic org
     if (optimisticCreates.length) {
       const onServer = new Set(serverOrgs.map((o) => o.id));
       const cleanedCreates = optimisticCreates.filter(
@@ -115,7 +141,9 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
   ]);
 
   useEffect(() => {
-    const unsubscribe = addListener((event: any) => {
+    const unsubscribe = addListener((rawEvent: unknown) => {
+      const event = rawEvent as ClerkEvent;
+
       if (event.type === "organization.created") {
         const newOrg: Organization = {
           id: event.data.id,
@@ -133,7 +161,7 @@ export const Sidebar = ({ storageKey = "t-sidebar-state" }: SidebarProps) => {
       }
 
       if (event.type === "organization.deleted") {
-        const deletedId: string = event.data.id;
+        const deletedId = event.data.id;
         setOrganizations((prev) => prev.filter((o) => o.id !== deletedId));
         setTombstones((prev) =>
           prev.includes(deletedId) ? prev : [...prev, deletedId]

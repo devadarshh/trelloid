@@ -26,7 +26,6 @@ export const syncOrganizationInDb = async (req: Request, res: Response) => {
       signingSecret: process.env.CLERK_WEBHOOK_SECRET_ORG,
     });
 
-
     if (evt.type === "organization.created") {
       const data = OrgCreatedSchema.parse(evt.data);
 
@@ -58,7 +57,7 @@ export const syncOrganizationInDb = async (req: Request, res: Response) => {
 
       await prisma.user.update({
         where: { clerkId: userId },
-        data: { organizationId: newOrg.organizationId },
+        data: { organizationId: newOrg.id },
       });
       return res.status(201).json({
         success: true,

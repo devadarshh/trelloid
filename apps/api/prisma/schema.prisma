@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,76 +7,74 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-        
-
 
 model User {
-  id             String        @id @default(cuid())
-  clerkId        String        @unique
-  email          String        @unique
-  firstName      String?
-  lastName       String?
-  imageUrl       String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  auditLogs      AuditLog[]   
+  auditLogs      AuditLog[]
 }
 
 model Organization {
-  id              String          @id @default(cuid()) 
-  organizationId  String          @unique           
-  name            String
+  id                String   @id @default(cuid())
+  organizationId    String   @unique
+  name              String
   organizationImage String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  
-  users           User[]          
-  boards          Board[]         
-  orgLimit        OrgLimit?       
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  users           User[]
+  boards          Board[]
+  orgLimit        OrgLimit?
   orgSubscription OrgSubscription?
 }
 
 model Board {
-  id              String    @id @default(uuid())
-  organizationId  String
-  title           String
-  imageId         String
-  imageThumbUrl   String    @db.Text
-  imageFullUrl    String    @db.Text
-  imageLinkHTML   String    @db.Text
-  list            List[]
+  id             String @id @default(uuid())
+  organizationId String
+  title          String
+  imageId        String
+  imageThumbUrl  String @db.Text
+  imageFullUrl   String @db.Text
+  imageLinkHTML  String @db.Text
+  list           List[]
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
- 
-  organization    Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Cascade)
 
   @@index([organizationId])
 }
 
 model List {
-  id          String  @id @default(uuid())
-  title       String
-  order       Int
-  boardId     String
-  board       Board   @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  cards       Card[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id        String   @id @default(uuid())
+  title     String
+  order     Int
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards     Card[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([boardId])
 }
 
 model Card {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   title       String
-  description String? @db.Text
+  description String?  @db.Text
   order       Int
   listId      String
-  list        List    @relation(fields: [listId], references: [id], onDelete: Cascade)
+  list        List     @relation(fields: [listId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -105,7 +102,7 @@ model AuditLog {
   entityType  ENTITY_TYPE
   entityTitle String
   userId      String
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userImage   String      @db.Text
   userName    String      @db.Text
   createdAt   DateTime    @default(now())
@@ -116,20 +113,20 @@ model AuditLog {
 }
 
 model OrgLimit {
-  id            String       @id @default(uuid())
-  orgId         String       @unique
-  count         Int          @default(0)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @default(now())
-  organization  Organization @relation(fields: [orgId], references: [organizationId], onDelete: Cascade)
+  id           String       @id @default(uuid())
+  orgId        String       @unique
+  count        Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @default(now())
+  organization Organization @relation(fields: [orgId], references: [organizationId], onDelete: Cascade)
 }
 
 model OrgSubscription {
-  id                    String       @id @default(uuid())
-  orgId                 String       @unique
+  id                     String       @id @default(uuid())
+  orgId                  String       @unique
   stripeCustomerId       String?      @unique @map("stripe_customer_id")
   stripeSubscriptionId   String?      @unique @map("stripe_subscription_id")
   stripePriceId          String?      @map("stripe_price_id")
   stripeCurrentPeriodEnd DateTime?    @map("stripe_current_period_end")
-  organization          Organization  @relation(fields: [orgId], references: [organizationId], onDelete: Cascade)
+  organization           Organization @relation(fields: [orgId], references: [organizationId], onDelete: Cascade)
 }
