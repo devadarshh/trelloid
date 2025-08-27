@@ -5,6 +5,7 @@ const SettingsPage = () => {
     <div className="w-full min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <OrganizationProfile
+          routing="hash"
           appearance={{
             elements: {
               rootBox: {

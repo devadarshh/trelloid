@@ -3,10 +3,14 @@ import { Separator } from "@/components/ui/separator";
 import { Info } from "../_components/Info";
 import { SubscriptionButton } from "./_components/SubscribeButton";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 
-const BillingPage = ({ params }: any) => {
-  const { organizationId } = params;
+interface OrganizationIdProps {
+  params: Promise<{ organizationId: string }>;
+}
+
+const BillingPage = ({ params }: OrganizationIdProps) => {
+  const { organizationId } = use(params);
   const { setOrgId } = useOrganizationIdStore();
 
   useEffect(() => {

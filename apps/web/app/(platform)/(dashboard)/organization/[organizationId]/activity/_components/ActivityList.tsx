@@ -13,8 +13,8 @@ interface AuditLog {
   timestamp: string;
   [key: string]: any;
 }
-
-export const ActivityList: React.FC & { Skeleton: React.FC } = () => {
+type ActivityListType = React.FC & { Skeleton: React.FC };
+export const ActivityList: ActivityListType = () => {
   const { getToken, orgId } = useAuth();
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
