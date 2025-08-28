@@ -40,6 +40,7 @@ export default function RootLayout({
           suppressHydrationWarning
         >
           {children}
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
