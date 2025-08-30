@@ -94,20 +94,20 @@ cd ..
 
 npm run dev
 
+```
 ## 📸 Screenshots
 
 ### Landing Page
-![Landing Page](web/assets/screenshots/landing_page.png)
+![Landing Page](apps/web/assets/screenshots/landing_page.png)
 
 ### Sign In Page
-![Sign In](apps/web/assets/screenshots/sign_in_page.png)
-
+![Sign In Page](apps/web/assets/screenshots/sign_in_page.png)
 
 ### Organization Page
-![Organization Page](apps/web/assets/screenshots/organizaions_page.png)
+![Organization Page](apps/web/assets/screenshots/organizations_page.png)
 
 ### Board Page
-![Board Page](apps/web//assets/screenshots/board_page.png)
+![Board Page](apps/web/assets/screenshots/board_page.png)
 
 ### Card Page
 ![Card Page](apps/web/assets/screenshots/card_modal.png)
@@ -120,4 +120,4 @@ npm run dev
 
 ### Activity Page
 ![Activity Page](apps/web/assets/screenshots/activity_page.png)
-```
+
