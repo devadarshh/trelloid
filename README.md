@@ -72,23 +72,27 @@ Follow these steps to set up and run Trelloid on your local machine:
 
 ```bash
 # Clone the repository
+
 git clone https://github.com/devadarshh/trelloid.git
 cd trelloid
 
 # Install frontend dependencies
+
 cd frontend
 npm install
 
 # Install backend dependencies
+
 cd ../backend
 npm install
 
 # Return to the root directory
+
 cd ..
 
 # Run both frontend and backend concurrently
+
 npm run dev
-## Screenshots
 
 ## 📸 Screenshots
 
