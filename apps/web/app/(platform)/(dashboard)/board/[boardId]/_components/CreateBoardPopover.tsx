@@ -85,9 +85,6 @@ const CreateBoardPopover = () => {
       setLoading(false);
     }
   };
-  // useEffect(() => {
-  //   fetchImages();
-  // }, [setImages]);
 
   const fetchLimit = async () => {
     if (!orgId) return;
@@ -179,11 +176,11 @@ const CreateBoardPopover = () => {
       </PopoverTrigger>
 
       <PopoverContent
-        align="center"
+        align="start"
         sideOffset={10}
         side="bottom"
-        avoidCollisions={false}
-        className="w-80 max-h-[80vh] overflow-y-auto"
+        avoidCollisions={true}
+        className="w-80 max-w-[95vw] sm:max-w-[90vw] md:w-96 max-h-[80vh] overflow-y-auto"
       >
         <div className="text-sm font-medium text-center text-neutral-600 pb-4">
           Create board
