@@ -1,6 +1,6 @@
 # Trelloid
 
-Trelloid is a modern B2B SaaS project management platform designed to help teams and organizations collaborate, organize tasks, and manage workflows with boards, lists, and cards. Built for scalability and productivity, Trelloid supports drag-and-drop organization, activity logs, and subscription-based SaaS functionality.
+Trelloid is a modern B2B SaaS project management platform designed to help teams and organizations collaborate, organize tasks, and manage workflows with boards, lists, and cards.
 
 **🌐 Live Demo:** [Access Trelloid](https://trelloidapp.vercel.app)  
 **🎬 Project Walkthrough:** [Watch on YouTube](https://youtube.com/your-video-link)
