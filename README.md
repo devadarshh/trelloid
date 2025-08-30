@@ -97,7 +97,7 @@ npm run dev
 ## 📸 Screenshots
 
 ### Landing Page
-![Landing Page](apps/web//assets/screenshots/landing_page.png)
+![Landing Page](web/assets/screenshots/landing_page.png)
 
 ### Sign In Page
 ![Sign In](apps/web/assets/screenshots/sign_in_page.png)
