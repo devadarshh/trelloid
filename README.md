@@ -7,14 +7,13 @@ Trelloid is a modern B2B SaaS project management platform designed to help teams
 
 ## ✅ Core Features
 
-- 🏢 **Organizations & Workspaces** – Manage multiple team workspaces efficiently.  
-- 📋 **Boards & Lists** – Organize projects and tasks with flexible boards and lists.  
-- 📝 **Cards & Task Management** – Add tasks and details seamlessly within boards.  
-- 🔄 **Drag & Drop** – Reorder boards, lists, and cards intuitively.  
-- 📊 **Activity & Audit Logs** – Track team actions and project history.  
-- 💳 **SaaS Subscription Model** – Limit boards per organization with Stripe billing, with unlock options.  
-- 🤝 **Collaboration** – Invite team members and manage roles effortlessly.  
-
+- 🏢 **Organizations & Workspaces** – Manage multiple team workspaces efficiently.
+- 📋 **Boards & Lists** – Organize projects and tasks with flexible boards and lists.
+- 📝 **Cards & Task Management** – Add tasks and details seamlessly within boards.
+- 🔄 **Drag & Drop** – Reorder boards, lists, and cards intuitively.
+- 📊 **Activity & Audit Logs** – Track team actions and project history.
+- 💳 **SaaS Subscription Model** – Limit boards per organization with Stripe billing, with unlock options.
+- 🤝 **Collaboration** – Invite team members and manage roles effortlessly.
 
 ## 🛠 Tech Stack
 
@@ -95,35 +94,42 @@ cd ..
 npm run dev
 
 ```
+
 ## 📸 Screenshots
 
 ### Landing Page
+
 ![Landing Page](apps/web/assets/screenshots/landing_page.png)
 
 ### Sign In Page
+
 ![Sign In Page](apps/web/assets/screenshots/sign_in_page.png)
 
 ### Organization Page
+
 ![Organization Page](apps/web/assets/screenshots/organizaions_page.png)
 
 ### Board Page
+
 ![Board Page](apps/web/assets/screenshots/board_page.png)
 
 ### Card Page
+
 ![Card Page](apps/web/assets/screenshots/card_modal.png)
 
 ### Settings Page
+
 ![Settings Page](apps/web/assets/screenshots/settings_page.png)
 
 ### Billing Page
+
 ![Billing Page](apps/web/assets/screenshots/pro_modal.png)
 
 ### Activity Page
+
 ![Activity Page](apps/web/assets/screenshots/activity_page.png)
 
-<<<<<<< HEAD
 ## 📄 License
 
 This project is licensed under a **Custom Personal Use License** — you may view and learn from the code, but **commercial use, redistribution, or claiming authorship is strictly prohibited**.  
 See the full [LICENSE](./LICENSE) for details.
-
