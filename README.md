@@ -121,8 +121,11 @@ npm run dev
 ### Activity Page
 ![Activity Page](apps/web/assets/screenshots/activity_page.png)
 
+<<<<<<< HEAD
 ## 📄 License
 
 This project is licensed under a **Custom Personal Use License** — you may view and learn from the code, but **commercial use, redistribution, or claiming authorship is strictly prohibited**.  
 See the full [LICENSE](./LICENSE) for details.
 
+=======
+>>>>>>> 98f0a3533ee28246dbc4ce02c416b0e178c56fe0
