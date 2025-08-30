@@ -1,135 +1,124 @@
-# Turborepo starter
+# Trelloid
 
-This Turborepo starter is maintained by the Turborepo core team.
+Trelloid is a modern B2B SaaS project management platform designed to help teams and organizations collaborate, organize tasks, and manage workflows with boards, lists, and cards. Built for scalability and productivity, Trelloid supports drag-and-drop organization, activity logs, and subscription-based SaaS functionality.
 
-## Using this example
+**🌐 Live Demo:** [Access Trelloid](trelloidapp.vercel.app)  
+**🎬 Project Walkthrough:** [Watch on YouTube](https://youtube.com/your-video-link)
 
-Run the following command:
+## ✅ Core Features
 
-```sh
-npx create-turbo@latest
+🏢 Organizations & Workspaces – Efficiently create and manage multiple workspaces for teams and departments.
+
+📋 Boards & Lists – Structure projects and tasks flexibly using customizable boards and lists.
+
+📝 Cards & Task Management – Add tasks, descriptions, and relevant details seamlessly within your boards and lists.
+
+🔄 Drag & Drop – Intuitively reorder boards, lists, and cards to maintain optimal workflow.
+
+📊 Activity & Audit Logs – Monitor team actions and track project history for full transparency.
+
+💳 SaaS Subscription Model – Implement board limits per organization with Stripe billing, with options to unlock unlimited access.
+
+🤝 Collaboration – Invite team members, assign roles, and manage permissions effortlessly.
+
+## 🛠 Tech Stack
+
+### **Client (Frontend)**
+
+- ⚛️ **Next.js** – React-based framework for server-side rendering and dynamic client-side interactivity
+- 🎨 **TailwindCSS, Lucide Icons, Shadcn UI, Animate.css**
+- 📝 **React Hook Form & Yup** – Form handling and validation
+- 🔄 **Zustand** – Efficient state management
+- 🌐 **Axios** – API requests and data fetching
+- 🔔 **Sonner & Tailwind Merge** – Notifications and utility helpers
+- 🔒 **Clerk** – Authentication and user management
+
+### **Server (Backend)**
+
+- ⚡ **Express.js** – Lightweight and flexible Node.js backend framework
+- 🗄 **PostgreSQL + Prisma ORM** – Relational database with schema management
+- 🔒 **Clerk (Express integration)** – Authentication and user management
+- 💳 **Stripe** – Payment processing and subscription management
+- 🔗 **Svix & Unsplash API** – Webhooks and third-party integrations
+- 🛡 **Zod, Body-Parser, CORS** – Request validation, parsing, and security
+- 🌱 **Dotenv** – Environment variable management
+- 🔧 **Nodemon, ts-node, TypeScript** – Development tooling and type safety
+- 🌐 **Ngrok** – Secure tunneling for local development and testing
+
+### **📦 Monorepo**
+
+- Frontend (`web`) and Backend (`api`) are managed in a single monorepo for **shared configurations, consistent types, and streamlined development workflow**
+
+## Environment Variables
+
+To run this project, you will need to set the following environment variables in your `.env` file:
+
+- `DATABASE_URL`
+- `DIRECT_URL`
+- `FRONTEND_URL`
+- `PORT`
+- `CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `CLERK_WEBHOOK_SECRET_USER`
+- `CLERK_WEBHOOK_SECRET_ORG`
+- `CLERK_WEBHOOK_SIGNING_SECRET`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_CLERK_SIGN_IN_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`
+- `UNSPLASH_ACCESS_KEY`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `NEXT_PUBLIC_API_URL`
+
+## Installation & Running Locally
+
+Follow these steps to set up and run Trelloid on your local machine:
+
+```bash
+# Clone the repository
+git clone https://github.com/devadarshh/trelloid.git
+cd trelloid
+
+# Install frontend dependencies
+cd frontend
+npm install
+
+# Install backend dependencies
+cd ../backend
+npm install
+
+# Return to the root directory
+cd ..
+
+# Run both frontend and backend concurrently
+npm run dev
+## Screenshots
+
+## 📸 Screenshots
+
+### Landing Page
+![Landing Page](apps/web//assets/screenshots/landing_page.png)
+
+### Sign In Page
+![Sign In](apps/web/assets/screenshots/sign_in_page.png)
+
+
+### Organization Page
+![Organization Page](apps/web/assets/screenshots/organizaions_page.png)
+
+### Board Page
+![Board Page](apps/web//assets/screenshots/board_page.png)
+
+### Card Page
+![Card Page](apps/web/assets/screenshots/card_modal.png)
+
+### Settings Page
+![Settings Page](apps/web/assets/screenshots/settings_page.png)
+
+### Billing Page
+![Billing Page](apps/web/assets/screenshots/pro_modal.png)
+
+### Activity Page
+![Activity Page](apps/web/assets/screenshots/activity_page.png)
 ```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
