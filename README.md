@@ -104,7 +104,7 @@ npm run dev
 ![Sign In Page](apps/web/assets/screenshots/sign_in_page.png)
 
 ### Organization Page
-![Organization Page](apps/web/assets/screenshots/organizations_page.png)
+![Organization Page](apps/web/assets/screenshots/organizaions_page.png)
 
 ### Board Page
 ![Board Page](apps/web/assets/screenshots/board_page.png)
