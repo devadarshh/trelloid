@@ -1,25 +1,20 @@
-# Trelloid
+# Trelloid – Streamline Teamwork, Organize Projects, Boost Productivity.
 
-Trelloid is a modern B2B SaaS project management platform designed to help teams and organizations collaborate, organize tasks, and manage workflows with boards, lists, and cards. Built for scalability and productivity, Trelloid supports drag-and-drop organization, activity logs, and subscription-based SaaS functionality.
+Trelloid is a modern B2B SaaS project management platform designed to help teams and organizations collaborate, organize tasks, and manage workflows with boards, lists, and cards.
 
-**🌐 Live Demo:** [Access Trelloid](trelloidapp.vercel.app)  
+**🌐 Live Demo:** [Access Trelloid](https://trelloidapp.vercel.app)  
 **🎬 Project Walkthrough:** [Watch on YouTube](https://youtube.com/your-video-link)
 
 ## ✅ Core Features
 
-🏢 Organizations & Workspaces – Efficiently create and manage multiple workspaces for teams and departments.
+- 🏢 **Organizations & Workspaces** – Manage multiple team workspaces efficiently.  
+- 📋 **Boards & Lists** – Organize projects and tasks with flexible boards and lists.  
+- 📝 **Cards & Task Management** – Add tasks and details seamlessly within boards.  
+- 🔄 **Drag & Drop** – Reorder boards, lists, and cards intuitively.  
+- 📊 **Activity & Audit Logs** – Track team actions and project history.  
+- 💳 **SaaS Subscription Model** – Limit boards per organization with Stripe billing, with unlock options.  
+- 🤝 **Collaboration** – Invite team members and manage roles effortlessly.  
 
-📋 Boards & Lists – Structure projects and tasks flexibly using customizable boards and lists.
-
-📝 Cards & Task Management – Add tasks, descriptions, and relevant details seamlessly within your boards and lists.
-
-🔄 Drag & Drop – Intuitively reorder boards, lists, and cards to maintain optimal workflow.
-
-📊 Activity & Audit Logs – Monitor team actions and track project history for full transparency.
-
-💳 SaaS Subscription Model – Implement board limits per organization with Stripe billing, with options to unlock unlimited access.
-
-🤝 Collaboration – Invite team members, assign roles, and manage permissions effortlessly.
 
 ## 🛠 Tech Stack
 
@@ -77,38 +72,42 @@ Follow these steps to set up and run Trelloid on your local machine:
 
 ```bash
 # Clone the repository
+
 git clone https://github.com/devadarshh/trelloid.git
 cd trelloid
 
 # Install frontend dependencies
+
 cd frontend
 npm install
 
 # Install backend dependencies
+
 cd ../backend
 npm install
 
 # Return to the root directory
+
 cd ..
 
 # Run both frontend and backend concurrently
-npm run dev
-## Screenshots
 
+npm run dev
+
+```
 ## 📸 Screenshots
 
 ### Landing Page
-![Landing Page](apps/web//assets/screenshots/landing_page.png)
+![Landing Page](apps/web/assets/screenshots/landing_page.png)
 
 ### Sign In Page
-![Sign In](apps/web/assets/screenshots/sign_in_page.png)
-
+![Sign In Page](apps/web/assets/screenshots/sign_in_page.png)
 
 ### Organization Page
 ![Organization Page](apps/web/assets/screenshots/organizaions_page.png)
 
 ### Board Page
-![Board Page](apps/web//assets/screenshots/board_page.png)
+![Board Page](apps/web/assets/screenshots/board_page.png)
 
 ### Card Page
 ![Card Page](apps/web/assets/screenshots/card_modal.png)
@@ -121,4 +120,9 @@ npm run dev
 
 ### Activity Page
 ![Activity Page](apps/web/assets/screenshots/activity_page.png)
-```
+
+## 📄 License
+
+This project is licensed under a **Custom Personal Use License** — you may view and learn from the code, but **commercial use, redistribution, or claiming authorship is strictly prohibited**.  
+See the full [LICENSE](./LICENSE) for details.
+
