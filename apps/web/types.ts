@@ -46,6 +46,6 @@ export interface AuditLog {
   userId: string;
   userImage: string;
   userName: string;
-  createdAt: string; 
+  createdAt: string;
   updatedAt: string;
 }

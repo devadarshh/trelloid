@@ -4,20 +4,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ActivityItem } from "components/ActivityItem";
+import { ActivityItem } from "./ActivityItem";
+import { AuditLog } from "types";
 
-interface AuditLog {
-  id: string;
-  action: string;
-  user: string;
-  timestamp: string;
-  [key: string]: any;
-}
 type ActivityListType = React.FC & { Skeleton: React.FC };
+
 export const ActivityList: ActivityListType = () => {
   const { getToken, orgId } = useAuth();
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!orgId) return;

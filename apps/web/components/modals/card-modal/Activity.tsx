@@ -1,16 +1,11 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ActivityItem } from "components/ActivityItem";
+import { ActivityItem } from "app/(platform)/(dashboard)/organization/[organizationId]/activity/_components/ActivityItem";
 import { ActivityIcon } from "lucide-react";
+import { AuditLog } from "types";
 
 interface ActivityProps {
-  items: {
-    id: string;
-    userName: string;
-    userImage?: string;
-    createdAt: string;
-    [key: string]: any;
-  }[];
+  items: AuditLog[];
 }
 
 export const Activity: React.FC<ActivityProps> & { Skeleton: React.FC } = ({

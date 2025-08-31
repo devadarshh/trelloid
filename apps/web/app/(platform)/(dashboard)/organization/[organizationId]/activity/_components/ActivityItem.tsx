@@ -1,12 +1,17 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { generateLogMessage } from "@/lib/generated-log-message";
 import { format } from "date-fns";
+import { AuditLog } from "types";
 
-export const ActivityItem = ({ data }: any) => {
+interface ActivityItemProps {
+  data: AuditLog;
+}
+
+export const ActivityItem: React.FC<ActivityItemProps> = ({ data }) => {
   return (
     <li className="flex items-center gap-x-2">
       <Avatar className="h-8 w-8">
-        <AvatarImage src={data.userImage} />
+        <AvatarImage src={data.userImage || ""} alt={data.userName} />
       </Avatar>
       <div className="flex flex-col space-y-0.5">
         <p className="text-sm text-muted-foreground">
