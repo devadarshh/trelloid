@@ -8,10 +8,7 @@ import { useProModal } from "hooks/use-pro-modal";
 import { useOrgProStore } from "hooks/boardHooks/useStore";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
 import { useAuth } from "@clerk/nextjs";
-
-interface StripeRedirectResponse {
-  data: string;
-}
+import { redirectToStripe } from "utils/stripeRedirect";
 
 export const SubscriptionButton: React.FC = () => {
   const { isPro } = useOrgProStore();
@@ -27,15 +24,8 @@ export const SubscriptionButton: React.FC = () => {
       setIsLoading(true);
       try {
         const token = await getToken();
-        const res: AxiosResponse<StripeRedirectResponse> = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/stripe/redirect`,
-          { orgId },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        window.location.href = res.data.data;
+        if (!token) throw new Error("Missing token");
+        await redirectToStripe(orgId, token);
       } catch (err) {
         let message = "Something went wrong!";
         if (axios.isAxiosError(err)) {
