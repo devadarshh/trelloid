@@ -4,18 +4,23 @@ import { cn } from "@/lib/utils";
 import CardForm from "./CardForm";
 import CardItem from "./CardItem";
 import ListHeader from "./ListHeader";
-import { ListWithCards } from "types";
-import { Draggable, Droppable } from "@hello-pangea/dnd";
+import { ListWithCards, Card } from "types";
+import {
+  Draggable,
+  Droppable,
+  DraggableProvided,
+  DroppableProvided,
+} from "@hello-pangea/dnd";
 
 interface ListItemProps {
   data: ListWithCards;
   index: number;
 }
 
-export const ListItem = ({ data, index }: ListItemProps) => {
+export const ListItem: React.FC<ListItemProps> = ({ data, index }) => {
   return (
     <Draggable draggableId={data.id} index={index}>
-      {(provided) => (
+      {(provided: DraggableProvided) => (
         <li
           {...provided.draggableProps}
           ref={provided.innerRef}
@@ -28,7 +33,7 @@ export const ListItem = ({ data, index }: ListItemProps) => {
             <ListHeader data={data} />
 
             <Droppable droppableId={data.id} type="card">
-              {(provided) => (
+              {(provided: DroppableProvided) => (
                 <ol
                   ref={provided.innerRef}
                   {...provided.droppableProps}
@@ -37,7 +42,7 @@ export const ListItem = ({ data, index }: ListItemProps) => {
                     data.cards.length > 0 ? "mt-2" : "mt-0"
                   )}
                 >
-                  {data.cards.map((card, index) => (
+                  {data.cards.map((card: Card, index: number) => (
                     <CardItem key={card.id} index={index} data={card} />
                   ))}
                   {provided.placeholder}

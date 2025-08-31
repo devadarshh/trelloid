@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { ListWithCards } from "types";
 import { create } from "zustand";
 
 interface CreateList {
@@ -26,29 +27,17 @@ export const useRefreshList = create<RefreshList>((set) => ({
     set((state) => ({ refreshLists: !state.refreshLists })),
 }));
 
-interface List {
-  title: ReactNode;
-  id: string;
-  name: string;
+interface ListState {
+  lists: ListWithCards[];
+  setLists: (
+    lists: ListWithCards[] | ((prev: ListWithCards[]) => ListWithCards[])
+  ) => void;
 }
 
-interface CreateListStore {
-  title: string;
-  id: string;
-  lists: List[];
-  setTitle: (newTitle: string) => void;
-  setId: (newId: string) => void;
-  setLists: (lists: List[] | ((prev: List[]) => List[])) => void;
-}
-
-export const useCreateListStore = create<CreateListStore>((set) => ({
-  title: "",
-  id: "",
+export const useCreateListStore = create<ListState>((set) => ({
   lists: [],
-  setTitle: (newTitle) => set({ title: newTitle }),
-  setId: (newId) => set({ id: newId }),
-  setLists: (updater) =>
+  setLists: (lists) =>
     set((state) => ({
-      lists: typeof updater === "function" ? updater(state.lists) : updater,
+      lists: typeof lists === "function" ? lists(state.lists) : lists,
     })),
 }));

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { ListItem } from "./ListItem";
 import { ListForm } from "./ListForm";
-import { ListWithCards } from "types";
+import { ListWithCards, Card } from "types";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import axios from "axios";
 import { useAuth } from "@clerk/nextjs";
@@ -16,14 +16,12 @@ interface ListContainerProps {
 function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed!);
+  if (!removed) return result;
+  result.splice(endIndex, 0, removed);
   return result;
 }
 
-const ListContainer: React.FC<ListContainerProps> = ({
-  data,
-  boardId,
-}: ListContainerProps) => {
+const ListContainer: React.FC<ListContainerProps> = ({ data, boardId }) => {
   const [orderedData, setOrderedData] = useState<ListWithCards[]>(data);
   const { getToken } = useAuth();
 
@@ -43,7 +41,7 @@ const ListContainer: React.FC<ListContainerProps> = ({
     }
   };
 
-  const executeUpdateCardOrder = async (boardId: string, items: any) => {
+  const executeUpdateCardOrder = async (boardId: string, items: Card[]) => {
     try {
       const token = await getToken();
       await axios.put(
@@ -92,8 +90,8 @@ const ListContainer: React.FC<ListContainerProps> = ({
 
       if (!sourceList || !destList) return;
 
-      if (!sourceList.cards) sourceList.cards = [];
-      if (!destList.cards) destList.cards = [];
+      sourceList.cards ||= [];
+      destList.cards ||= [];
 
       if (source.droppableId === destination.droppableId) {
         const reorderedCards = reorder(
@@ -106,7 +104,9 @@ const ListContainer: React.FC<ListContainerProps> = ({
         setOrderedData(newOrderedData);
         executeUpdateCardOrder(boardId, reorderedCards);
       } else {
-        const [movedCard]: any = sourceList.cards.splice(source.index, 1);
+        const [movedCard] = sourceList.cards.splice(source.index, 1);
+        if (!movedCard) return;
+
         movedCard.listId = destination.droppableId;
         destList.cards.splice(destination.index, 0, movedCard);
 

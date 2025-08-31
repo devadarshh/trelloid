@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ElementRef, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import ListOptions from "./ListOptions";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -8,22 +8,22 @@ import { useAuth } from "@clerk/nextjs";
 import { useLoadingStore } from "hooks/boardHooks/useStore";
 import axios from "axios";
 import { useCreateListStore } from "hooks/listHooks/useStore";
-import { List } from "types";
+import { List, ListWithCards } from "types";
 
 interface ListHeaderProps {
   data: List;
 }
 
-const ListHeader = ({ data }: ListHeaderProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [updatedTitle, setUpdatedTitle] = useState(data.title || "");
+const ListHeader: React.FC<ListHeaderProps> = ({ data }) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [updatedTitle, setUpdatedTitle] = useState<string>(data.title || "");
 
   const { getToken } = useAuth();
   const { setLoading } = useLoadingStore();
   const { setLists } = useCreateListStore();
 
   const formRef = useRef<HTMLFormElement>(null);
-  const inputRef = useRef<ElementRef<"input">>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const enableEditing = () => {
     if (isEditing) return;
@@ -63,14 +63,15 @@ const ListHeader = ({ data }: ListHeaderProps) => {
         }
       );
 
-      setLists((prevLists) =>
+      setLists((prevLists: ListWithCards[]) =>
         prevLists.map((list) =>
           list.id === data.id ? { ...list, title: updatedTitle } : list
         )
       );
 
       toast.success("List renamed successfully");
-    } catch {
+    } catch (err: any) {
+      console.error(err);
       toast.error("Error renaming list");
     } finally {
       setLoading(false);

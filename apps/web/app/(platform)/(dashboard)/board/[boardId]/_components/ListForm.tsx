@@ -12,14 +12,16 @@ import { useCreateList, useRefreshList } from "hooks/listHooks/useStore";
 import axios from "axios";
 import { toast } from "sonner";
 import { ListFormschema } from "schema/validationSchema";
+
 interface ListFormProps {
   boardId: string;
 }
+
 export const ListForm: React.FC<ListFormProps> = ({ boardId }) => {
   const formRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<ElementRef<"input">>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
 
   const { getToken } = useAuth();
   const { BoardId } = useBoardIdStore();
@@ -38,13 +40,13 @@ export const ListForm: React.FC<ListFormProps> = ({ boardId }) => {
     setTitle("");
   };
 
-  const validateTitle = async (value: string) => {
+  const validateTitle = async (value: string): Promise<boolean> => {
     try {
       await ListFormschema.validate({ title: value });
       setError("");
       return true;
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message ?? "Invalid title");
       return false;
     }
   };
@@ -64,7 +66,8 @@ export const ListForm: React.FC<ListFormProps> = ({ boardId }) => {
       triggerRefreshLists();
       toast.success(`List "${title}" created`);
       disableEditing();
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Error creating list");
     } finally {
       setLoading(false);
@@ -75,8 +78,9 @@ export const ListForm: React.FC<ListFormProps> = ({ boardId }) => {
     if (e.key === "Escape") disableEditing();
   };
 
-  useEventListener("keydown", onKeyDown);
-  useOnClickOutside(formRef as any, disableEditing);
+  useEventListener("keydown", onKeyDown as EventListener);
+
+  useOnClickOutside(formRef as React.RefObject<HTMLElement>, disableEditing);
 
   useEffect(() => {
     if (title) validateTitle(title);

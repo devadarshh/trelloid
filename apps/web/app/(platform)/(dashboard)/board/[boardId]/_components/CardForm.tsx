@@ -11,16 +11,16 @@ import { useCreateCard, useRefreshCards } from "hooks/cardHooks/useStore";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { useEventListener, useOnClickOutside } from "usehooks-ts";
-import * as Yup from "yup";
 import { CardFormSchema } from "schema/validationSchema";
 
 interface CardFormProps {
   listId: string;
 }
 
-const CardForm = ({ listId }: CardFormProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState("");
+const CardForm: React.FC<CardFormProps> = ({ listId }) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
   const { getToken } = useAuth();
   const { title, setTitle } = useCreateCard();
   const { isLoading, setLoading } = useLoadingStore();
@@ -43,18 +43,18 @@ const CardForm = ({ listId }: CardFormProps) => {
     setTitle("");
   };
 
-  const validateTitle = async (value: string) => {
+  const validateTitle = async (value: string): Promise<boolean> => {
     try {
       await CardFormSchema.validate({ title: value });
       setError("");
       return true;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message);
       return false;
     }
   };
 
-  const handleCreateCard = async () => {
+  const handleCreateCard = async (): Promise<void> => {
     const isValid = await validateTitle(title);
     if (!isValid) return;
 
@@ -70,8 +70,9 @@ const CardForm = ({ listId }: CardFormProps) => {
       triggerRefreshCards();
       setTitle("");
       disableEditing();
-    } catch {
+    } catch (err: unknown) {
       toast.error("Error creating card");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -82,7 +83,7 @@ const CardForm = ({ listId }: CardFormProps) => {
   };
 
   useEventListener("keydown", onKeyDown);
-  useOnClickOutside(formRef as any, disableEditing);
+  useOnClickOutside(formRef as React.RefObject<HTMLElement>, disableEditing);
 
   useEffect(() => {
     if (title) validateTitle(title);
@@ -118,7 +119,6 @@ const CardForm = ({ listId }: CardFormProps) => {
             size="sm"
             variant="primary"
             disabled={isLoading || !!error}
-            className="cursor-pointer"
           >
             Add card
           </Button>
@@ -127,7 +127,6 @@ const CardForm = ({ listId }: CardFormProps) => {
             size="sm"
             variant="ghost"
             disabled={isLoading}
-            className="cursor-pointer"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -140,7 +139,7 @@ const CardForm = ({ listId }: CardFormProps) => {
     <div className="pt-2 px-2">
       <Button
         onClick={enableEditing}
-        className="h-auto px-2 py-1.5 w-full justify-start text-muted-foreground text-sm cursor-pointer"
+        className="h-auto px-2 py-1.5 w-full justify-start text-muted-foreground text-sm"
         size="sm"
         variant="ghost"
       >

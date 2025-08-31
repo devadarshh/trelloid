@@ -1,5 +1,10 @@
 import BoardIdClient from "./_components/BoardIdClient";
 
-export default function BoardPage({ params }: any) {
-  return <BoardIdClient boardId={params.boardId} />;
+interface BoardPageProps {
+  params: Promise<{ boardId: string }>;
+}
+
+export default async function BoardIdPage({ params }: BoardPageProps) {
+  const { boardId } = await params;
+  return <BoardIdClient boardId={boardId} />;
 }

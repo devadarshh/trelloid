@@ -26,17 +26,17 @@ interface ListOptionsProps {
   data: List;
 }
 
-const ListOptions = ({ data }: ListOptionsProps) => {
-  const closeRef = useRef<ElementRef<"button">>(null);
+const ListOptions: React.FC<ListOptionsProps> = ({ data }) => {
+  const closeRef = useRef<ElementRef<typeof Button>>(null);
   const { triggerRefreshBoards } = useRefreshBoard();
   const { triggerRefreshCards } = useRefreshCards();
   const { triggerRefreshLists } = useRefreshList();
   const { isLoading, setLoading } = useLoadingStore();
   const { getToken } = useAuth();
   const { BoardId } = useBoardIdStore();
-  const listId = data.id;
+  const listId: string = data.id;
 
-  const handleCopyList = async () => {
+  const handleCopyList = async (): Promise<void> => {
     try {
       setLoading(true);
       const token = await getToken();
@@ -54,14 +54,16 @@ const ListOptions = ({ data }: ListOptionsProps) => {
       triggerRefreshBoards();
       triggerRefreshCards();
       closeRef.current?.click();
-    } catch {
+    } catch (error) {
       toast.error("Error copying list");
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteList = async () => {
+  const handleDeleteList = async (): Promise<void> => {
+    if (!BoardId) return;
     try {
       setLoading(true);
       const token = await getToken();
@@ -76,8 +78,9 @@ const ListOptions = ({ data }: ListOptionsProps) => {
       toast.success("List deleted successfully");
       triggerRefreshLists();
       closeRef.current?.click();
-    } catch {
+    } catch (error) {
       toast.error("Error deleting list");
+      console.error(error);
     } finally {
       setLoading(false);
     }
