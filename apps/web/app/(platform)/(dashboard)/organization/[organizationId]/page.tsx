@@ -26,7 +26,7 @@ const OrganizationIdPage: React.FC<OrganizationIdProps> = ({ params }) => {
 
       <div className="px-2 md:px-4">
         <Suspense fallback={<BoardList.Skeleton />}>
-          <BoardList organizationId={organizationId} />
+          <BoardList />
         </Suspense>
       </div>
     </div>

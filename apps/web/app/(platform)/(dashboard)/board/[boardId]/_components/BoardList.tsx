@@ -11,7 +11,7 @@ import { useGetBoardStore } from "hooks/boardHooks/useStore";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
 import CreateBoardPopover from "./CreateBoardPopover";
 
-export const BoardList = ({ organizationId }: { organizationId: string }) => {
+export const BoardList = () => {
   const { isLoading, setLoading } = useLoadingStore();
   const { getToken } = useAuth();
   const { orgId, setOrgId } = useOrganizationIdStore();
@@ -19,9 +19,8 @@ export const BoardList = ({ organizationId }: { organizationId: string }) => {
   const { boards, setBoards, setCurrentBoard } = useGetBoardStore();
 
   useEffect(() => {
-    if (organizationId) setOrgId(organizationId);
     setBoards([]);
-  }, [organizationId, setOrgId]);
+  }, [orgId, setOrgId]);
 
   useEffect(() => {
     if (!orgId) return;
