@@ -1,23 +1,11 @@
 "use client";
 
-import React, { Suspense, use, useEffect } from "react";
+import React, { Suspense } from "react";
 import { BoardList } from "app/(platform)/(dashboard)/board/[boardId]/_components/BoardList";
 import { Separator } from "@/components/ui/separator";
 import { Info } from "./_components/Info";
-import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
 
-interface OrganizationIdProps {
-  params: Promise<{ organizationId: string }>;
-}
-
-const OrganizationIdPage: React.FC<OrganizationIdProps> = ({ params }) => {
-  const { organizationId } = use(params);
-  const { setOrgId } = useOrganizationIdStore();
-
-  useEffect(() => {
-    setOrgId(organizationId);
-  }, [organizationId]);
-
+const OrganizationIdPage: React.FC = () => {
   return (
     <div className="w-full mb-20">
       <Info />

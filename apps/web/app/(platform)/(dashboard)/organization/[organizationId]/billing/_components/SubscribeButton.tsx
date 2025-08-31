@@ -36,11 +36,13 @@ export const SubscriptionButton: React.FC = () => {
         );
 
         window.location.href = res.data.data;
-      } catch (err: unknown) {
-        const message =
-          (err as any)?.response?.data?.error ||
-          (err as Error).message ||
-          "Something went wrong!";
+      } catch (err) {
+        let message = "Something went wrong!";
+        if (axios.isAxiosError(err)) {
+          message = err.response?.data?.error ?? err.message;
+        } else if (err instanceof Error) {
+          message = err.message;
+        }
         toast.error(message);
       } finally {
         setIsLoading(false);
