@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { stripe } from "../utils/stripe";
-import { clerkClient } from "@clerk/express";
+import { clerkClient, getAuth } from "@clerk/express";
 import Stripe from "stripe";
 
 export const stripeRedirect = async (req: Request, res: Response) => {
@@ -12,13 +12,30 @@ export const stripeRedirect = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Organization ID required" });
     }
 
-    const authUser = (req as any).auth?.userId;
-    if (!authUser) return res.status(401).json({ error: "Unauthorized" });
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-    const user = await clerkClient.users.getUser(authUser);
-    const email = user.emailAddresses[0].emailAddress;
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error("Stripe Redirect Error: STRIPE_SECRET_KEY is not set");
+      return res.status(500).json({ error: "Stripe is not configured" });
+    }
 
-    const frontendUrl = `${process.env.FRONTEND_URL}/organization/${orgId}`;
+    const frontendBaseUrl = process.env.FRONTEND_URL;
+    if (!frontendBaseUrl) {
+      console.error("Stripe Redirect Error: FRONTEND_URL is not set");
+      return res.status(500).json({ error: "Server misconfiguration" });
+    }
+
+    const user = await clerkClient.users.getUser(userId);
+    const email =
+      user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)
+        ?.emailAddress ?? user.emailAddresses[0]?.emailAddress;
+
+    if (!email) {
+      return res.status(400).json({ error: "User email not found" });
+    }
+
+    const frontendUrl = `${frontendBaseUrl}/organization/${orgId}`;
     let url = "";
 
     const orgSubscription = await prisma.orgSubscription.findUnique({
@@ -61,7 +78,11 @@ export const stripeRedirect = async (req: Request, res: Response) => {
 
     return res.json({ data: url });
   } catch (error) {
-    console.error("Stripe Redirect Error:", error);
+    if (error instanceof Stripe.errors.StripeError) {
+      console.error("Stripe Redirect Error:", error.type, error.message);
+    } else {
+      console.error("Stripe Redirect Error:", error);
+    }
     return res.status(500).json({ error: "Something went wrong!" });
   }
 };

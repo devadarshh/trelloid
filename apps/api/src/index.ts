@@ -19,7 +19,9 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
   "https://trelloidapp.vercel.app",
-];
+  "https://trelloid.adarshsingh.xyz",
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+].filter((origin, index, origins) => origins.indexOf(origin) === index);
 
 app.use(
   cors({

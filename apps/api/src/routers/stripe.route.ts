@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { requireAuth } from "@clerk/express";
 import bodyParser from "body-parser";
 import {
   stripeRedirect,
@@ -8,7 +7,7 @@ import {
 
 const router = Router();
 
-router.post("/stripe/redirect", requireAuth(), stripeRedirect);
+router.post("/stripe/redirect", stripeRedirect);
 
 router.post(
   "/api/stripe/webhook",
