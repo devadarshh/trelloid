@@ -13,7 +13,13 @@ const OrganizationIdPage: React.FC = () => {
       <Separator className="my-4" />
 
       <div className="px-2 md:px-4">
-        <Suspense fallback={<BoardList.Skeleton />}>
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              <BoardList.Skeleton />
+            </div>
+          }
+        >
           <BoardList />
         </Suspense>
       </div>

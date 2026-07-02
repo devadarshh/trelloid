@@ -82,13 +82,13 @@ export const BoardList = () => {
 
 BoardList.Skeleton = function Skeleton() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    <>
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="aspect-video bg-gray-200 animate-pulse rounded-sm"
+          className="aspect-video h-full w-full bg-muted animate-pulse rounded-sm"
         />
       ))}
-    </div>
+    </>
   );
 };
