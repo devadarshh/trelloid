@@ -13,6 +13,7 @@ import cardRoutes from "./routers/card.route";
 import activityRoutes from "./routers/activity.route";
 import stripeRoutes from "./routers/stripe.route";
 import orgLimitRoutes from "./routers/orgLimits.route";
+import prisma from "./prisma";
 
 dotenv.config({
   path: path.resolve(__dirname, "../../../.env"),
@@ -52,6 +53,17 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
   }
 });
+
+app.get("/health", async (_req: Request, res: Response) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({ ok: true, db: "connected" });
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res.status(503).json({ ok: false, db: "disconnected" });
+  }
+});
+
 app.use("/", orgRoutes);
 app.use(clerkMiddleware());
 

@@ -1,0 +1,27 @@
+name: Keep Render and Supabase alive
+
+on:
+  schedule:
+    # Render free tier spins down after 15 min idle. Ping every 14 min to stay awake.
+    # One service ≈ 720 hrs/month, within Render's 750 free instance hours.
+    - cron: "*/14 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API health endpoint
+        env:
+          RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
+        run: |
+          if [ -z "$RENDER_API_URL" ]; then
+            echo "Missing RENDER_API_URL secret."
+            echo "Add it in GitHub: Settings → Secrets and variables → Actions"
+            echo "Value example: https://your-service.onrender.com"
+            exit 1
+          fi
+
+          BASE_URL="${RENDER_API_URL%/}"
+          echo "Pinging ${BASE_URL}/health"
+          curl -fsS --max-time 120 "${BASE_URL}/health"
