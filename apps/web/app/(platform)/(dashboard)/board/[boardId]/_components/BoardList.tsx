@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import axios from "axios";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { User2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { useLoadingStore, useRefreshBoard } from "hooks/boardHooks/useStore";
 import { useGetBoardStore } from "hooks/boardHooks/useStore";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
+import { api, getApiErrorMessage } from "@/lib/api";
 import CreateBoardPopover from "./CreateBoardPopover";
 
 export const BoardList = () => {
@@ -28,19 +29,17 @@ export const BoardList = () => {
     const fetchAllBoards = async () => {
       try {
         const token = await getToken();
+        if (!token) return;
+
         setLoading(true);
 
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/boards`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            params: { orgId },
-            withCredentials: true,
-          }
-        );
+        const response = await api.get("/api/v1/boards", {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { orgId },
+        });
         setBoards(response.data.data);
-      } catch (error: any) {
-        console.error(error.message || "Error fetching boards");
+      } catch (error: unknown) {
+        toast.error(getApiErrorMessage(error, "Failed to load boards"));
       } finally {
         setLoading(false);
         resetRefresh();

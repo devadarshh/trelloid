@@ -1,14 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import axios, { AxiosResponse } from "axios";
 import { useOrgProStore } from "hooks/boardHooks/useStore";
 import { useAuth } from "@clerk/nextjs";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
-
-interface SubscriptionStatusResponse {
-  isSubscribed: boolean;
-}
+import { api } from "@/lib/api";
 
 export const ProStatusProvider: React.FC = () => {
   const { setIsPro } = useOrgProStore();
@@ -21,16 +17,18 @@ export const ProStatusProvider: React.FC = () => {
     const fetchProStatus = async () => {
       try {
         const token = await getToken();
-        const res: AxiosResponse<SubscriptionStatusResponse> = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/subscription-status?orgId=${orgId}`,
+        if (!token) return;
+
+        const res = await api.get<{ isSubscribed: boolean }>(
+          "/api/v1/subscription-status",
           {
             headers: { Authorization: `Bearer ${token}` },
+            params: { orgId },
           }
         );
 
         setIsPro(res.data.isSubscribed);
-      } catch (err) {
-        console.error("Failed to fetch Pro status", err);
+      } catch {
         setIsPro(false);
       }
     };

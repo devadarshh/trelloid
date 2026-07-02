@@ -8,6 +8,7 @@ node_modules
 # npm cache
 .npm
 .npm-cache
+npm-cache/
 **/.npm
 **/node_modules/.cache
 

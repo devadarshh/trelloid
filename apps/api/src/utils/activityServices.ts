@@ -2,6 +2,8 @@ import { Request } from "express";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { getAuth } from "@clerk/express";
 import prisma from "../prisma";
+import { ensureOrganization } from "./ensureOrganization";
+import { ensureUser } from "./ensureUser";
 
 interface AuditLogProps {
   entityId: string;
@@ -20,17 +22,8 @@ export const createAuditLog = async (props: AuditLogProps) => {
       throw new Error("User or Organization not found!");
     }
 
-    const user = await prisma.user.findUnique({
-      where: { clerkId: clerkUserId },
-    });
-
-    if (!user) throw new Error("User not found in DB");
-
-    const organization = await prisma.organization.findUnique({
-      where: { organizationId: clerkOrgId },
-    });
-
-    if (!organization) throw new Error("Organization not found in DB");
+    const user = await ensureUser(clerkUserId);
+    const organization = await ensureOrganization(clerkOrgId);
 
     await prisma.auditLog.create({
       data: {
@@ -46,6 +39,5 @@ export const createAuditLog = async (props: AuditLogProps) => {
     });
   } catch (error) {
     console.error("[AUDIT_LOG_ERROR]", error);
-    throw error;
   }
 };

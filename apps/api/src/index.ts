@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import path from "path";
 import dotenv from "dotenv";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
@@ -13,11 +14,16 @@ import activityRoutes from "./routers/activity.route";
 import stripeRoutes from "./routers/stripe.route";
 import orgLimitRoutes from "./routers/orgLimits.route";
 
-dotenv.config();
+dotenv.config({
+  path: path.resolve(__dirname, "../../../.env"),
+  override: true,
+});
 
 const app = express();
+const isDev = process.env.NODE_ENV !== "production";
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:3001",
   "https://trelloidapp.vercel.app",
   "https://trelloid.adarshsingh.xyz",
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
@@ -26,7 +32,11 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        (isDev && /^http:\/\/localhost:\d+$/.test(origin))
+      ) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
@@ -63,9 +73,36 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-const PORT = process.env.PORT || 6000;
-app.listen(PORT, () => {
-  console.log(`SERVER IS RUNNING ON PORT ${PORT}`);
-});
+const PORT = Number(process.env.PORT) || 5001;
+
+function startServer() {
+  const server = app.listen(PORT, () => {
+    console.log(`SERVER IS RUNNING ON PORT ${PORT}`);
+  });
+
+  server.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        `Port ${PORT} is already in use. Stop the other process or change PORT in .env`
+      );
+    } else {
+      console.error("Failed to start server:", err);
+    }
+    process.exit(1);
+  });
+
+  const shutdown = () => {
+    server.close(() => process.exit(0));
+  };
+
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
+
+  return server;
+}
+
+if (require.main === module) {
+  startServer();
+}
 
 export default app;

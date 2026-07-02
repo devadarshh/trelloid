@@ -24,7 +24,6 @@ import { cn } from "@/lib/utils";
 import { defaultImages } from "constants/images";
 
 import {
-  useBoardLimitStore,
   useCreateBoardStore,
   useImageStore,
   useRefreshBoard,
@@ -44,9 +43,6 @@ export type UnsplashImage = {
   user: { name: string };
 };
 
-interface BoardLimitResponse {
-  remaining: number;
-}
 interface CreateBoardResponse {
   id: string;
   title: string;
@@ -58,7 +54,6 @@ export const OrgNavBar: React.FC = () => {
   const { orgId } = useOrganizationIdStore();
   const { getToken } = useAuth();
   const { triggerRefreshBoards } = useRefreshBoard();
-  const { setRemaining } = useBoardLimitStore();
   const [isLoading, setLoading] = useState(false);
   const desktopPopoverCloseRef = useRef<HTMLButtonElement | null>(null);
   const mobilePopoverCloseRef = useRef<HTMLButtonElement | null>(null);
@@ -76,24 +71,6 @@ export const OrgNavBar: React.FC = () => {
     setImageFullUrl,
     setImageLinkHTML,
   } = useCreateBoardStore();
-
-  const fetchLimit = async () => {
-    if (!orgId) return;
-    try {
-      const token = await getToken();
-      const res = await axios.get<BoardLimitResponse>(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/count?orgId=${orgId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setRemaining(res.data.remaining);
-    } catch (err) {
-      console.error("Error fetching board limit:", err);
-      setRemaining(0);
-    }
-  };
-  useEffect(() => {
-    if (orgId) void fetchLimit();
-  }, [orgId]);
 
   const fetchImages = async () => {
     try {
@@ -164,7 +141,6 @@ export const OrgNavBar: React.FC = () => {
       );
 
       triggerRefreshBoards();
-      await fetchLimit();
 
       setTitle("");
       setImageId("");

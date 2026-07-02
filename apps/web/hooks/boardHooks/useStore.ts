@@ -106,12 +106,12 @@ export const useBoardIdStore = create<BoardId>((set) => ({
   setBoardId: (newBoardId) => set({ BoardId: newBoardId }),
 }));
 interface BoardLimitState {
-  remaining: number;
-  setRemaining: (value: number) => void;
+  remaining: number | null;
+  setRemaining: (value: number | null) => void;
 }
 
 export const useBoardLimitStore = create<BoardLimitState>((set) => ({
-  remaining: 0,
+  remaining: null,
   setRemaining: (value) => set({ remaining: value }),
 }));
 interface OrgProStore {

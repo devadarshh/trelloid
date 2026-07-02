@@ -10,6 +10,7 @@ import {
 } from "../controllers/orgLimits.controller";
 import { z } from "zod";
 import { checkSubscription } from "../utils/checkSubscription";
+import { ensureOrganization } from "../utils/ensureOrganization";
 
 const createBoardSchema = z.object({
   orgId: z.string().min(1, "Organization ID is required"),
@@ -66,9 +67,7 @@ export const handleCreateBoard = async (
         });
       }
     }
-    const orgExists = await prisma.organization.findUnique({
-      where: { organizationId: orgId },
-    });
+    const orgExists = await ensureOrganization(orgId);
     if (!orgExists)
       return res
         .status(404)
@@ -112,7 +111,9 @@ export const handleCreateBoard = async (
     });
   } catch (error) {
     console.error("[CREATE_BOARD_ERROR]", error);
-    return res.status(500).json({ success: false, error: "Server error" });
+    const message =
+      error instanceof Error ? error.message : "Failed to create board";
+    return res.status(500).json({ success: false, message, error: "Server error" });
   }
 };
 
@@ -130,9 +131,7 @@ export const handleGetAllBoard = async (
 
     const { orgId } = parseResult.data;
 
-    const orgExists = await prisma.organization.findUnique({
-      where: { organizationId: orgId },
-    });
+    const orgExists = await ensureOrganization(orgId);
     if (!orgExists)
       return res
         .status(404)
@@ -145,7 +144,11 @@ export const handleGetAllBoard = async (
     return res.status(200).json({ success: true, data: boards });
   } catch (error) {
     console.error("[GET_ALL_BOARDS_ERROR]", error);
-    return res.status(500).json({ success: false, error: "Server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load boards",
+      error: "Server error",
+    });
   }
 };
 

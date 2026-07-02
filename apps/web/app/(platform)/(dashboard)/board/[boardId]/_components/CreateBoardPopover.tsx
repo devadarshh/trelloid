@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { useRef, useState } from "react";
+import { api, getApiErrorMessage } from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
@@ -19,20 +19,22 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 import {
-  useBoardLimitStore,
   useCreateBoardStore,
+  useGetBoardStore,
   useImageStore,
   useLoadingStore,
   useOrgProStore,
   useRefreshBoard,
 } from "hooks/boardHooks/useStore";
 import { useOrganizationIdStore } from "hooks/organizaionHooks/useStore";
+import * as yup from "yup";
 import {
   createBoardSchema,
   CreateBoardFormData,
 } from "schema/validationSchema";
 import { useProModal } from "hooks/use-pro-modal";
 import { defaultImages } from "constants/images";
+import { MAX_FREE_BOARDS } from "constants/boards";
 
 type UnsplashImage = {
   id: string;
@@ -49,9 +51,14 @@ const CreateBoardPopover = () => {
   const { images, setImages } = useImageStore();
   const closeRef = useRef<HTMLButtonElement>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { setRemaining, remaining } = useBoardLimitStore();
+  const { boards } = useGetBoardStore();
   const proModal = useProModal();
   const { isPro } = useOrgProStore();
+
+  const orgBoardCount = boards.filter(
+    (board) => board.organizationId === orgId
+  ).length;
+  const remaining = Math.max(MAX_FREE_BOARDS - orgBoardCount, 0);
 
   const {
     title,
@@ -68,9 +75,7 @@ const CreateBoardPopover = () => {
   const fetchImages = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/images`
-      );
+      const response = await api.get("/api/images");
       const newImages: UnsplashImage[] = Array.isArray(response.data)
         ? response.data
         : defaultImages;
@@ -85,25 +90,6 @@ const CreateBoardPopover = () => {
       setLoading(false);
     }
   };
-
-  const fetchLimit = async () => {
-    if (!orgId) return;
-    try {
-      const token = await getToken();
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/count?orgId=${orgId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setRemaining(res.data.remaining);
-    } catch (err) {
-      console.error("Error fetching board limit:", err);
-      setRemaining(0);
-    }
-  };
-
-  useEffect(() => {
-    if (orgId) fetchLimit();
-  }, [orgId]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,17 +115,15 @@ const CreateBoardPopover = () => {
       setLoading(true);
       const token = await getToken();
 
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/create-board`,
+      await api.post(
+        "/api/v1/create-board",
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
         }
       );
 
       triggerRefreshBoards();
-      await fetchLimit();
 
       setTitle("");
       setImageId("");
@@ -149,10 +133,15 @@ const CreateBoardPopover = () => {
 
       closeRef.current?.click();
     } catch (err: unknown) {
-      const message =
-        axios.isAxiosError(err) && err.response?.data?.message
-          ? err.response.data.message
-          : "Something went wrong";
+      let message = getApiErrorMessage(err);
+      if (err instanceof yup.ValidationError) {
+        const fieldErrors: Record<string, string> = {};
+        err.inner.forEach((e) => {
+          if (e.path) fieldErrors[e.path] = e.message;
+        });
+        setErrors(fieldErrors);
+        message = err.errors[0] ?? "Please fix the form errors";
+      }
 
       toast.error(message);
     } finally {
@@ -166,11 +155,7 @@ const CreateBoardPopover = () => {
         <button className="aspect-video relative h-full w-full bg-muted rounded-sm flex flex-col items-center justify-center hover:opacity-75 transition cursor-pointer">
           <p className="text-sm">Create new board</p>
           <span className="text-xs">
-            {isPro
-              ? "Unlimited"
-              : remaining !== undefined
-                ? `${remaining} remaining`
-                : "Loading..."}
+            {isPro ? "Unlimited" : `${remaining} remaining`}
           </span>
         </button>
       </PopoverTrigger>
@@ -270,19 +255,20 @@ const CreateBoardPopover = () => {
               type="button" //
               className="w-full cursor-pointer"
               onClick={(e) => {
-                if (remaining === 0) {
+                if (!isPro && remaining === 0) {
                   toast.error(
                     "You have reached your free board limit. Upgrade to Pro!"
                   );
-                  proModal.onOpen(); // open modal
+                  proModal.onOpen();
                   return;
                 }
                 onSubmit(e);
               }}
+              disabled={isLoading}
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
-              ) : remaining === 0 ? (
+              ) : !isPro && remaining === 0 ? (
                 "Upgrade to Pro"
               ) : (
                 "Create"

@@ -4,6 +4,18 @@ import { Request, Response } from "express";
 
 const MAX_FREE_BOARDS = 5;
 
+const getOrgBoardCount = async (orgId: string): Promise<number> => {
+  return prisma.board.count({ where: { organizationId: orgId } });
+};
+
+const syncOrgLimitCount = async (orgId: string, count: number) => {
+  await prisma.orgLimit.upsert({
+    where: { orgId },
+    create: { orgId, count },
+    update: { count },
+  });
+};
+
 const checkSubscriptionQuerySchema = z.object({
   orgId: z.string().nonempty(),
 });
@@ -36,34 +48,18 @@ export const checkOrgSubscription = async (req: Request, res: Response) => {
 };
 
 export const incrementAvailableCount = async (orgId: string) => {
-  const orgLimit = await prisma.orgLimit.findUnique({ where: { orgId } });
-
-  if (orgLimit) {
-    await prisma.orgLimit.update({
-      where: { orgId },
-      data: { count: orgLimit.count > 0 ? orgLimit.count - 1 : 0 },
-    });
-  }
+  const count = await getOrgBoardCount(orgId);
+  await syncOrgLimitCount(orgId, count);
 };
 
 export const decreaseAvailableCount = async (orgId: string) => {
-  const orgLimit = await prisma.orgLimit.findUnique({ where: { orgId } });
-
-  if (orgLimit) {
-    if (orgLimit.count < MAX_FREE_BOARDS) {
-      await prisma.orgLimit.update({
-        where: { orgId },
-        data: { count: orgLimit.count + 1 },
-      });
-    }
-  } else {
-    await prisma.orgLimit.create({ data: { orgId, count: 1 } });
-  }
+  const count = await getOrgBoardCount(orgId);
+  await syncOrgLimitCount(orgId, count);
 };
 
 export const hasAvailableCount = async (orgId: string): Promise<boolean> => {
-  const orgLimit = await prisma.orgLimit.findUnique({ where: { orgId } });
-  return !orgLimit || orgLimit.count < MAX_FREE_BOARDS;
+  const count = await getOrgBoardCount(orgId);
+  return count < MAX_FREE_BOARDS;
 };
 
 export const handleGetAvailableCount = async (req: Request, res: Response) => {
@@ -77,20 +73,9 @@ export const handleGetAvailableCount = async (req: Request, res: Response) => {
       });
     }
 
-    let orgLimit = await prisma.orgLimit.findUnique({
-      where: { orgId },
-    });
+    const count = await getOrgBoardCount(orgId);
+    await syncOrgLimitCount(orgId, count);
 
-    if (!orgLimit) {
-      orgLimit = await prisma.orgLimit.create({
-        data: {
-          orgId,
-          count: 0,
-        },
-      });
-    }
-
-    const count = orgLimit.count;
     const remaining = Math.max(MAX_FREE_BOARDS - count, 0);
 
     return res.status(200).json({
